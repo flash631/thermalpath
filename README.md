@@ -4,9 +4,10 @@ ThermalPath is a Python library for checking thermal design calculations in
 electronics cooling. It is intended for engineers and students who want clear
 units, reproducible examples, and evidence they can inspect.
 
-**D01 implements a steady series-resistance path.** Networks, transients, a 2D
-heat spreader, design studies, reports, and a small Streamlit interface are planned
-in [ROADMAP.md](ROADMAP.md). They are not available in this version.
+The library implements a steady series-resistance calculation and typed network
+inputs with SI validation. Network solving, transients, a 2D heat spreader,
+design studies, reports, and a small Streamlit interface are planned in
+[ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
 
 ## Install
 
@@ -89,10 +90,17 @@ study is described in [case study](docs/case_study.md).
 
 ## API, CLI, and app
 
-The public API contains only `conduction_resistance` and `series_temperature`.
+The calculation API contains `conduction_resistance` and `series_temperature`.
 Both use SI units and raise `ValueError` for invalid numeric inputs or
 unrepresentable calculated outputs. Internally, absolute temperatures are kelvin.
 Celsius conversion occurs only when presenting the example.
+
+`Node`, `Link`, and `Network` define immutable network inputs. Node powers are
+signed watts, conductances are positive W/K, and prescribed temperatures are
+positive kelvin. Constructors reject invalid domains, duplicate IDs, missing
+endpoints, and conflicting boundary definitions. See [network inputs](docs/models.md)
+for a complete example and the limits of structural validation. These records
+do not solve temperatures or establish that a steady solution exists.
 
 A physics CLI is planned for D05 and the Streamlit interface for D27.
 The Python API and the example are the available ways to run D01 calculations.

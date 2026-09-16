@@ -9,10 +9,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: independently obtain 0.05 K/W and 363.90 K; test domains, scaling,
   zero cases and range limits; pass the complete quality gate.
   Completion date: 2026-09-15. Evidence: docs/devlog/day01.md.
-- [ ] D02 | models | Typed nodes, links, fixed temperatures, and SI validation.
+- [x] D02 | models | Typed nodes, links, fixed temperatures, and SI validation.
   Acceptance: explicit identifiers and units; reject duplicates, invalid physical
   domains, missing endpoints, and ambiguous fixed-node definitions.
-  Completion date: pending. Evidence: docs/devlog/day02.md.
+  Completion date: 2026-09-16. Evidence: docs/devlog/day02.md.
 - [ ] D03 | networks | Steady conductance-matrix network solver.
   Acceptance: an anchored hand-solved network and one series limiting case agree
   within derived tolerances; report temperatures and signed link powers.
