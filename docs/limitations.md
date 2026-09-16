@@ -18,12 +18,3 @@ Finite inputs can still exceed floating-point range. The API rejects a
 nonfinite output and a conduction resistance that underflows to zero. Very small
 finite temperature rises can round away when added to a much larger ambient;
 the API does not promise relative accuracy on such a rise.
-
-The privacy scanner uses patterns and hash-bound manual asset reviews. It can
-miss novel credentials, identifying prose, or information embedded in images.
-Manual review remains required. Private state is ignored local working data,
-not an encrypted vault and never a place to store credentials.
-
-Native local scheduling requires an available project, an awake computer, a
-running desktop app, appropriate permissions, authentication, and subscription
-allowance. Missed triggers do not cause a burst of catch-up commits.

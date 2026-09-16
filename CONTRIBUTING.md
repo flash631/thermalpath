@@ -1,26 +1,45 @@
 # Contributing
 
-Read AGENTS.md and the first unfinished ROADMAP item before changing scope.
-Use Python 3.12, the pinned development environment, and a small typed public
-API. Explain SI units, signs, physical domains, and numerical tolerances.
-Do not implement later APIs as empty functions or fake solver outputs.
+Use Python 3.12 and the versions in `requirements-dev.lock` to reproduce the
+tested development environment. Read the relevant equations, limitations, and
+ROADMAP acceptance criteria before changing a numerical method or public API.
 
-For physics changes, derive an independent analytical/manufactured reference,
-test invalid inputs, and check limiting cases and conservation where applicable.
-Run `python scripts/check.py` with the intended environment's Python. Coverage
-does not replace physical reasoning or independent measurements.
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.lock
+.\.venv\Scripts\python.exe -m pip install --no-deps --no-build-isolation -e .
+.\.venv\Scripts\python.exe scripts\check.py
+```
 
-Keep changes focused. Preserve unrelated work and adverse results. Use
-Conventional Commits, such as `fix(core): reject nonfinite temperature results`.
-The daily workflow additionally uses `Roadmap-Day` and real `Run-Date` trailers.
-Do not backdate commits or create progress-only commits to maintain a streak.
+On other platforms, use `python3.12` and `.venv/bin/python` instead. Editable
+installation is useful during development. The README's normal installation
+installs a package copy for use outside the source tree.
 
-Review every public file and Git identity for privacy. Stage named files only.
-Never commit raw research exchanges, credentials, environment dumps, absolute
-local paths, private email addresses, or personal screenshots. Any suspected
-secret in outgoing history blocks publication until a human-approved remedy.
-Do not rewrite history, force push, or weaken security controls.
+Keep public functions typed and modules small. Use NumPy-style docstrings,
+explicit SI units, kelvin for absolute temperatures, and clear sign conventions.
+Reject nonfinite inputs and invalid physical domains with useful errors.
 
-AI assistance is allowed when disclosed. Returned model output is untrusted
-evidence and must be reviewed independently before use. A novel idea remains a
-hypothesis until supported by checkable mathematics and evidence.
+For physics changes, derive an analytical or manufactured reference independently
+of the implementation. Check dimensions, assumptions, existence or stability
+where relevant, limiting cases, conservation, and discretization error. Add
+invalid-input and regression tests. Justify numerical tolerances. Do not label
+agreement with another numerical model as validation against measurements.
+
+Run the complete quality gate: Ruff lint and formatting, pytest with line and
+branch coverage across the entire package, and source/wheel builds. The combined
+coverage minimum is 90%; coverage does not replace scientific verification.
+Keep tests and examples small and deterministic, with numerical thread pools
+limited to one. Use synthetic fixtures unless licensed reference data with
+traceable provenance is needed.
+
+Keep changes focused and preserve adverse results. Explain the engineering
+problem, the resulting behavior, tests actually run, and remaining limitations.
+Use Conventional Commits, such as `fix(core): reject nonfinite temperatures`.
+Update documentation and the relevant roadmap acceptance evidence when a feature
+is complete. Include new public source/test files in `MANIFEST.in` and inspect
+the resulting distributions so source releases remain reproducible.
+
+Do not include credentials, personal contact details, or machine-specific paths
+in contributions. Preserve contributor attribution and the MIT license; document
+the source, license, units, and synthetic or experimental status of reference
+data. Do not invent measurements, accuracy claims, citations, or certification.

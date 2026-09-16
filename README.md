@@ -15,7 +15,7 @@ Python 3.12 is the tested baseline. From the repository root on Windows:
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.lock
-.\.venv\Scripts\python.exe -m pip install --no-deps --no-build-isolation -e .
+.\.venv\Scripts\python.exe -m pip install --no-deps --no-build-isolation .
 .\.venv\Scripts\python.exe examples\series_stack.py
 ```
 
@@ -24,7 +24,7 @@ No activation or execution-policy change is needed. Portable equivalents:
 ```sh
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements-dev.lock
-.venv/bin/python -m pip install --no-deps --no-build-isolation -e .
+.venv/bin/python -m pip install --no-deps --no-build-isolation .
 .venv/bin/python examples/series_stack.py
 ```
 
@@ -94,8 +94,8 @@ Both use SI units and raise `ValueError` for invalid numeric inputs or
 unrepresentable calculated outputs. Internally, absolute temperatures are kelvin.
 Celsius conversion occurs only when presenting the example.
 
-A physics CLI is planned for D05 and the Streamlit interface for D27. Workflow
-helpers under `scripts/` are available now; they are not a thermal-model CLI.
+A physics CLI is planned for D05 and the Streamlit interface for D27.
+The Python API and the example are the available ways to run D01 calculations.
 
 ## Run the checks
 
@@ -106,28 +106,14 @@ helpers under `scripts/` are available now; they are not a thermal-model CLI.
 
 The gate runs Ruff lint and format checks, pytest with branch measurement and
 at least 90% combined coverage over every implemented package module, then a
-wheel/source build. Workflow helpers have separate behavioral tests, including
-temporary Git repositories and local remotes. Tests make no model calls and do
-not publish to GitHub or modify a real schedule. Examples and tests restrict
-numerical thread pools to one.
+wheel/source build. Tests cover the public API, numerical reference, headless
+example, and quality-gate driver. Examples and tests restrict numerical thread
+pools to one.
 
 The same gate is configured for standard GitHub-hosted Windows and Ubuntu
-runners, with read-only workflow permissions. CI contains no coding agent,
-uploads, deployment secrets, or external coverage service. A workflow file alone
-is not evidence that either CI job passed; inspect the actual run.
-
-## Development and research workflow
-
-Development follows the first unfinished roadmap item, one meaningful increment
-at a time. [Automation](docs/automation.md) explains private state, date guards,
-publication recovery, and native desktop scheduling. The tracked
-[daily prompt](.codex/daily_prompt.md) is reusable; the local project mapping,
-schedule, and timezone remain private. No automation is installed by cloning.
-
-Material unresolved mathematics pauses publication. A human transfers a
-self-contained question to GPT 6 Pro and returns a text file. The desktop agent
-checks that proposed solution independently before resuming the same increment.
-See [research workflow](docs/research_workflow.md). Raw exchanges remain ignored.
+runners, with read-only workflow permissions. Inspect the actual run for the
+source revision being assessed; a configured workflow alone is not execution
+evidence.
 
 ## Limits and contribution
 
@@ -137,10 +123,6 @@ device safety. Finite-precision representability checks do not establish
 engineering accuracy. Read [limitations](docs/limitations.md) before using a
 result to guide a design.
 
-The project was created with AI assistance for implementation, tests, and
-documentation. Analytical checks and test evidence are reviewable; AI assistance
-is not independent physical validation or peer review.
-
 Contribution guidance is in [CONTRIBUTING.md](CONTRIBUTING.md). The release is
 licensed under [MIT](LICENSE), with attribution to ThermalPath contributors.
 
@@ -148,9 +130,3 @@ licensed under [MIT](LICENSE), with attribution to ThermalPath contributors.
 
 - [NASA: verification and validation](https://www.grc.nasa.gov/www/wind/valid/tutorial/overview.html)
   distinguishes numerical verification from physical validation.
-- [Python: zoneinfo](https://docs.python.org/3/library/zoneinfo.html) describes
-  IANA timezone handling and the cross-platform `tzdata` dependency.
-- [GitHub: commit email addresses](https://docs.github.com/en/account-and-profile/reference/email-addresses-reference)
-  describes GitHub-provided noreply identity formats.
-- [Native scheduled tasks](https://developers.openai.com/codex/app/automations)
-  explains desktop project execution and local availability requirements.

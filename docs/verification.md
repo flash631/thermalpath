@@ -33,7 +33,7 @@ empty input, invalid signs, nonfinite inputs, and calculated overflow/underflow.
 
 `scripts/check.py` measures lines and branches over `thermalpath`, including
 implemented modules not imported by a particular test. The combined threshold
-is 90%; no module is excluded to raise the score. Helper tests run in the same
+is 90%; no module is excluded to raise the score. Quality-driver tests run in the same
 pytest session but do not substitute for package coverage.
 
 D01 has no mesh/time-step refinement or physical dataset. Later increments must

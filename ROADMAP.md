@@ -1,15 +1,13 @@
 # ThermalPath development roadmap
 
-These are sequential increments, not calendar deadlines. Select only the first
-unfinished item. Every item requires analytical review, independent tests,
-the complete quality/privacy gates, and a reviewed publication snapshot.
-Dates and evidence are entered before the item's atomic development commit;
-delivery SHA and CI state remain private. A research pause leaves the item open.
+Each increment defines an engineering deliverable and acceptance criteria.
+Completed items identify their actual completion date and evidence. Numerical
+features require appropriate analytical references, tests, and documented limits.
 
-- [x] D01 | resistance | Series resistance model, example, repository, CI,
-  privacy/research workflow, and durable automation scaffold.
+- [x] D01 | resistance | Series resistance model, runnable example,
+  engineering documentation, packaging, and CI.
   Acceptance: independently obtain 0.05 K/W and 363.90 K; test domains, scaling,
-  zero cases and range limits; pass full gate and publication preparation.
+  zero cases and range limits; pass the complete quality gate.
   Completion date: 2026-09-15. Evidence: docs/devlog/day01.md.
 - [ ] D02 | models | Typed nodes, links, fixed temperatures, and SI validation.
   Acceptance: explicit identifiers and units; reject duplicates, invalid physical
@@ -125,6 +123,6 @@ delivery SHA and CI state remain private. A research pause leaves the item open.
   Completion date: pending. Evidence: docs/devlog/day29.md.
 - [ ] D30 | release | Final evidence audit and v0.1.0 release.
   Acceptance: audit every claim/reference, build README gallery from reviewed
-  results, publish tag/release notes after required repairs and passing CI;
-  mark COMPLETE and pause only the project's native automation.
+  results, publish tag/release notes after required repairs and passing CI,
+  and record completed release evidence.
   Completion date: pending. Evidence: docs/devlog/day30.md.

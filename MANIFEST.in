@@ -1,6 +1,33 @@
-include LICENSE README.md ROADMAP.md AGENTS.md CONTRIBUTING.md requirements-dev.lock
-recursive-include docs *.md
-recursive-include examples *.py *.md
-recursive-include scripts *.py
-recursive-include tests *.py *.md
-include .codex/daily_prompt.md
+# Explicit source distribution inventory.
+global-exclude *
+include .gitattributes
+include .github/workflows/ci.yml
+include .gitignore
+include CONTRIBUTING.md
+include LICENSE
+include MANIFEST.in
+include README.md
+include ROADMAP.md
+include app/README.md
+include data/reference/README.md
+include docs/assets/README.md
+include docs/case_study.md
+include docs/decisions/0001-series-path.md
+include docs/devlog/day01.md
+include docs/limitations.md
+include docs/theory.md
+include docs/verification.md
+include examples/cases/README.md
+include examples/series_stack.py
+include pyproject.toml
+include requirements-dev.lock
+include scripts/check.py
+include src/thermalpath/README.md
+include src/thermalpath/__init__.py
+include src/thermalpath/resistance.py
+include tests/conftest.py
+include tests/integration/test_example.py
+include tests/ui/README.md
+include tests/unit/test_check.py
+include tests/unit/test_resistance.py
+include tests/verification/test_series_reference.py
