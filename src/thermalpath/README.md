@@ -1,0 +1,1 @@
+Only resistance.py is implemented in D01. Later roadmap increments add models.py, networks.py, transient.py, grid.py, plate.py, studies.py, comparison.py, plotting.py, io.py and cli.py. No empty solver APIs are exposed.

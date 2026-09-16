@@ -1,0 +1,1 @@
+Store only reviewed figures generated from traceable calculations. Include units, readable labels, correct geometry aspect ratio and consistent comparison scales. No decorative image is simulation evidence.

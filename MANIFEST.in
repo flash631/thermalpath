@@ -1,0 +1,6 @@
+include LICENSE README.md ROADMAP.md AGENTS.md CONTRIBUTING.md requirements-dev.lock
+recursive-include docs *.md
+recursive-include examples *.py *.md
+recursive-include scripts *.py
+recursive-include tests *.py *.md
+include .codex/daily_prompt.md
