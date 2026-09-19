@@ -18,3 +18,11 @@ Finite inputs can still exceed floating-point range. The API rejects a
 nonfinite output and a conduction resistance that underflows to zero. Very small
 finite temperature rises can round away when added to a much larger ambient;
 the API does not promise relative accuracy on such a rise.
+
+D03 extends the calculation to small constant-conductance networks with multiple
+fixed boundaries and signed node loads. It retains the lumped-temperature and
+steady-state assumptions. Every unknown node must reach a fixed boundary.
+The dense solver rejects detected singularity and arithmetic range errors, but
+does not certify accuracy for poorly conditioned systems or small temperature
+differences. See [network limits](networks.md#numerical-scope). Conductances and
+boundary conditions still require independent engineering justification.

@@ -29,6 +29,52 @@ must vanish within the stated tolerance. Other checks cover geometric scaling,
 monotonicity, subdivision of a homogeneous layer, zero power/resistances,
 empty input, invalid signs, nonfinite inputs, and calculated overflow/underflow.
 
+## D03 network references and tolerances
+
+The two-unknown reference uses 2 W/K from a to a 300 K boundary, 1 W/K
+between a and b, and 3 W/K from b to a 320 K boundary. Applied loads are
+10 W at a and -30 W at b. Independent elimination gives
+
+```text
+3 T_a - T_b = 610,     -T_a + 4 T_b = 930
+T_a = 3370/11 K,       T_b = 3400/11 K
+q_a,cold = 140/11 W,   q_a,b = -30/11 W,   q_b,warm = -360/11 W.
+```
+
+The series fixture uses resistances 1, 1/20, and 2 K/W with a 318.15 K
+boundary and 15 W input. Exact rational arithmetic gives 363.90, 348.90,
+348.15, and 318.15 K along the chain and 15 W through each link. Tests also
+multiply every conductance and the applied load by 0.5 and 8; temperatures
+must stay unchanged while powers scale by the same factor. Expected results
+are computed independently with rational arithmetic, without a matrix solve
+or calls to the resistance API.
+
+For the two reduced reference matrices, the infinity-norm condition numbers
+`||A||_inf ||A^-1||_inf` are 25/11 and 298.2. The series inverse is
+`[[3.05, 2.05, 2], [2.05, 2.05, 2], [2, 2, 2]] K/W`, giving norms
+42 W/K and 7.1 K/W. Uniform conductance scaling leaves the condition number
+unchanged. With binary64 epsilon `2^-52`, a first-order temperature error budget
+`8 n epsilon condition_inf max(T)` is about 2.50e-12 K for two unknowns and
+5.79e-10 K for three unknowns. The factor 8 allows for assembly and the short
+direct solve on these fixtures; this is a regression budget, not a rigorous
+error bound for every LAPACK implementation or arbitrary network.
+
+Round those budgets upward to temperature tolerances of 1e-11 K and 1e-9 K.
+Propagate endpoint errors with `|delta q| <= G (|delta T_a| + |delta T_b|)`
+and allow additional rounding in subtraction/multiplication: the link-power
+tolerances are 1e-10 W and 5e-7 W, respectively. The latter includes the
+largest tested conductance, 160 W/K. Each two-boundary nodal balance sums two
+link powers and allows 2e-10 W. Relative tolerances are zero. These allowances
+concern arithmetic only; they say nothing about input or measurement uncertainty.
+
+Separate tests reject unanchored inputs, nonpositive solved temperatures,
+matrix/boundary arithmetic range errors, and link-power overflow or underflow.
+One connected fixture has a boundary conductance of 1e-30 W/K beside a
+1 W/K internal link: the boundary diagonal contribution rounds away and the
+numerical system is singular. Its rejection is preserved as an expected outcome.
+These finite tests do not certify every extreme input. See
+[solver limits](networks.md#numerical-scope) and the [D03 devlog](devlog/day03.md).
+
 ## Coverage and future verification
 
 `scripts/check.py` measures lines and branches over `thermalpath`, including

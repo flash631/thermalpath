@@ -13,10 +13,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: explicit identifiers and units; reject duplicates, invalid physical
   domains, missing endpoints, and ambiguous fixed-node definitions.
   Completion date: 2026-09-16. Evidence: docs/devlog/day02.md.
-- [ ] D03 | networks | Steady conductance-matrix network solver.
+- [x] D03 | networks | Steady conductance-matrix network solver.
   Acceptance: an anchored hand-solved network and one series limiting case agree
   within derived tolerances; report temperatures and signed link powers.
-  Completion date: pending. Evidence: docs/devlog/day03.md.
+  Completion date: 2026-09-18. Evidence: docs/devlog/day03.md.
 - [ ] D04 | diagnostics | Connectivity and signed heat-balance diagnostics.
   Acceptance: disconnected/unanchored components produce clear errors; source,
   sink, and link power accounting closes on independent multi-node fixtures.

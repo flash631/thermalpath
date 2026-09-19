@@ -4,8 +4,9 @@ ThermalPath is a Python library for checking thermal design calculations in
 electronics cooling. It is intended for engineers and students who want clear
 units, reproducible examples, and evidence they can inspect.
 
-The library implements a steady series-resistance calculation and typed network
-inputs with SI validation. Network solving, transients, a 2D heat spreader,
+The library implements a steady series-resistance calculation, typed network
+inputs with SI validation, and a steady conductance-matrix network solver.
+Transients, a 2D heat spreader,
 design studies, reports, and a small Streamlit interface are planned in
 [ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
 
@@ -30,8 +31,9 @@ python3.12 -m venv .venv
 ```
 
 The lock contains third-party packages only. It records tested versions, with
-platform markers for platform-specific dependencies. NumPy, SciPy, and Matplotlib
-are included for subsequent increments; D01 physics uses the standard library.
+platform markers for platform-specific dependencies. The network solver uses
+NumPy; SciPy and Matplotlib are included for subsequent increments.
+D01 physics uses the standard library.
 The `app` extra reserves Streamlit as an optional dependency; D01 has no app.
 No package registry publication is implied by this repository's package name.
 
@@ -102,6 +104,13 @@ endpoints, and conflicting boundary definitions. See [network inputs](docs/model
 for a complete example and the limits of structural validation. These records
 do not solve temperatures or establish that a steady solution exists.
 
+`solve_steady(network)` solves small constant-conductance networks and returns
+`SteadyResult.temperatures_k` and `SteadyResult.link_powers_w` dictionaries by ID.
+Every unknown node must have a path to a fixed-temperature boundary. Positive
+link power flows from `node_a` to `node_b`. See [steady networks](docs/networks.md)
+for a runnable example, the governing equations, and numerical limits. Independent
+hand-solved references are recorded in the [D03 devlog](docs/devlog/day03.md).
+
 A physics CLI is planned for D05 and the Streamlit interface for D27.
 The Python API and the example are the available ways to run D01 calculations.
 
@@ -125,7 +134,8 @@ evidence.
 
 ## Limits and contribution
 
-This release predicts only a prescribed single thermal path. It does not predict
+This release predicts prescribed series paths and steady lumped networks with
+constant conductances and fixed boundary temperatures. It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
 engineering accuracy. Read [limitations](docs/limitations.md) before using a
