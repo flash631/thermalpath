@@ -81,4 +81,5 @@ The link underflow check cannot recover a difference already lost to rounding.
 The [verification cases](verification.md#d03-network-references-and-tolerances)
 check finite synthetic networks with justified tolerances. They do not validate
 conductance values, device geometry, or temperatures measured on hardware.
-Detailed component and heat-balance reports are planned in D04.
+The [connectivity and heat-balance diagnostics](diagnostics.md) report component
+membership, unknown-node residuals, and signed reservoir powers.

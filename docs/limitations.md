@@ -26,3 +26,9 @@ The dense solver rejects detected singularity and arithmetic range errors, but
 does not certify accuracy for poorly conditioned systems or small temperature
 differences. See [network limits](networks.md#numerical-scope). Conductances and
 boundary conditions still require independent engineering justification.
+
+D04 accounts for supplied link powers and inferred reservoir powers. Zero global
+imbalance can hide nonzero node residuals, so each unknown-node balance must be
+checked. Even zero nodal residuals do not verify the temperature/conductance law
+or physical validity. Sums can overflow and boundary totals are rounded before
+global accounting. See [diagnostic limits](diagnostics.md#arithmetic-and-interpretation-limits).

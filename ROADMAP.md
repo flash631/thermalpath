@@ -17,10 +17,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: an anchored hand-solved network and one series limiting case agree
   within derived tolerances; report temperatures and signed link powers.
   Completion date: 2026-09-18. Evidence: docs/devlog/day03.md.
-- [ ] D04 | diagnostics | Connectivity and signed heat-balance diagnostics.
+- [x] D04 | diagnostics | Connectivity and signed heat-balance diagnostics.
   Acceptance: disconnected/unanchored components produce clear errors; source,
   sink, and link power accounting closes on independent multi-node fixtures.
-  Completion date: pending. Evidence: docs/devlog/day04.md.
+  Completion date: 2026-09-19. Evidence: docs/devlog/day04.md.
 - [ ] D05 | io/cli | Versioned JSON cases and run-network command.
   Acceptance: document schema/units, reject unknown versions and malformed cases,
   round-trip a case, and integration-test CLI exit codes and numeric output.

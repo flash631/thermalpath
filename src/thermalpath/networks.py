@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from thermalpath.diagnostics import check_connectivity
 from thermalpath.models import Network
 
 
@@ -22,7 +23,7 @@ class SteadyResult:
     Notes
     -----
     Dictionaries are independent result copies and may be edited by the caller.
-    No reservoir reaction or heat-balance diagnostic is included.
+    Pass link_powers_w to heat_balance for reservoir and nodal accounting.
     """
 
     temperatures_k: dict[str, float]
@@ -60,27 +61,12 @@ def solve_steady(network: Network) -> SteadyResult:
     Extreme conductance ratios or small temperature differences can lose
     accuracy; finite results are not an accuracy certificate. See docs/networks.md.
     """
-    if not isinstance(network, Network):
-        raise ValueError("network must be a Network")
+    check_connectivity(network)
     temperatures = {
         node.id: node.fixed_temperature_k
         for node in network.nodes
         if node.fixed_temperature_k is not None
     }
-    neighbors: dict[str, list[str]] = {node.id: [] for node in network.nodes}
-    for link in network.links:
-        neighbors[link.node_a].append(link.node_b)
-        neighbors[link.node_b].append(link.node_a)
-    reached = set(temperatures)
-    pending = list(reached)
-    while pending:
-        for neighbor in neighbors[pending.pop()]:
-            if neighbor not in reached:
-                reached.add(neighbor)
-                pending.append(neighbor)
-    if len(reached) != len(network.nodes):
-        raise ValueError("every unknown node needs a path to a fixed temperature")
-
     unknown = [node for node in network.nodes if node.fixed_temperature_k is None]
     indices = {node.id: i for i, node in enumerate(unknown)}
     if unknown:

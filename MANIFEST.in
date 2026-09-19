@@ -15,9 +15,12 @@ include docs/case_study.md
 include docs/decisions/0001-series-path.md
 include docs/decisions/0002-network-inputs.md
 include docs/decisions/0003-steady-networks.md
+include docs/decisions/0004-heat-accounting.md
 include docs/devlog/day01.md
 include docs/devlog/day02.md
 include docs/devlog/day03.md
+include docs/devlog/day04.md
+include docs/diagnostics.md
 include docs/limitations.md
 include docs/models.md
 include docs/networks.md
@@ -30,6 +33,7 @@ include requirements-dev.lock
 include scripts/check.py
 include src/thermalpath/README.md
 include src/thermalpath/__init__.py
+include src/thermalpath/diagnostics.py
 include src/thermalpath/models.py
 include src/thermalpath/networks.py
 include src/thermalpath/resistance.py
@@ -37,8 +41,10 @@ include tests/conftest.py
 include tests/integration/test_example.py
 include tests/ui/README.md
 include tests/unit/test_check.py
+include tests/unit/test_diagnostics.py
 include tests/unit/test_models.py
 include tests/unit/test_networks.py
 include tests/unit/test_resistance.py
 include tests/verification/test_series_reference.py
 include tests/verification/test_network_reference.py
+include tests/verification/test_heat_balance_reference.py

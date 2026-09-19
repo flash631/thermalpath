@@ -75,6 +75,40 @@ numerical system is singular. Its rejection is preserved as an expected outcome.
 These finite tests do not certify every extreme input. See
 [solver limits](networks.md#numerical-scope) and the [D03 devlog](devlog/day03.md).
 
+## D04 heat-accounting references
+
+The exact integer ledger uses temperatures a=310 K, b=320 K, cold=300 K,
+and warm=340 K. Two oppositely oriented 1 W/K links connect a and cold;
+a 1 W/K link connects a to b and a 3 W/K link connects b to warm.
+The powers are +10, -10, -10, and -60 W in those orientations. Independent
+accounting gives loads +10 W at a and -50 W at b, reservoir inputs -20 W at
+cold and +60 W at warm, and total input/output of 70 W. These small integer
+values are exactly representable; the accounting assertions use exact equality.
+Reversing every link preserves the node and boundary ledger.
+
+The D03 rational reference gives reservoir inputs -140/11 W and +360/11 W.
+Including the +10 W and -30 W loads gives both source and sink totals 470/11 W.
+Each boundary receives one link, so its tolerance remains 1e-10 W. Each unknown
+node sums two link powers, allowing 2e-10 W per residual. The total input/output
+tolerances are 2e-10 W, and the global imbalance allows 4e-10 W, covering the
+two nodal error budgets. These extend the D03 propagation budget; relative
+tolerances remain zero. They are regression allowances for this finite fixture,
+not general error certificates or physical uncertainty bounds.
+
+Adverse checks perturb an internal flow by 1 W: the two node errors are -1 W
+and +1 W while global imbalance stays zero. Perturbing a boundary flow by 1 W
+gives a -1 W global error. Another test preserves the 1 W remainder of external
+terms 1e16, 1, and -1e16 W; separately rounded input and output totals are equal.
+A 1e-20 W load connected by 1 W/K to a 300 K boundary produces a temperature
+rise lost to rounding and a zero reported link power. Its nodal and global
+errors remain 1e-20 W. No tolerance conceals that outcome.
+
+Additional checks cover fixed-to-fixed transfer, separate anchored components,
+isolated fixed nodes, cycles, component ordering, balanced/unbalanced unanchored
+groups, malformed power mappings, and overflowing sums. The supplied flow
+checks deliberately do not establish q=G*dT. See [D04 limits](diagnostics.md)
+and the [D04 devlog](devlog/day04.md).
+
 ## Coverage and future verification
 
 `scripts/check.py` measures lines and branches over `thermalpath`, including

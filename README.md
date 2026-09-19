@@ -5,7 +5,8 @@ electronics cooling. It is intended for engineers and students who want clear
 units, reproducible examples, and evidence they can inspect.
 
 The library implements a steady series-resistance calculation, typed network
-inputs with SI validation, and a steady conductance-matrix network solver.
+inputs with SI validation, a steady conductance-matrix network solver, and
+connectivity and signed heat-balance diagnostics.
 Transients, a 2D heat spreader,
 design studies, reports, and a small Streamlit interface are planned in
 [ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
@@ -110,6 +111,12 @@ Every unknown node must have a path to a fixed-temperature boundary. Positive
 link power flows from `node_a` to `node_b`. See [steady networks](docs/networks.md)
 for a runnable example, the governing equations, and numerical limits. Independent
 hand-solved references are recorded in the [D03 devlog](docs/devlog/day03.md).
+
+`check_connectivity(network)` identifies anchored components and names groups
+with missing temperature boundaries. `heat_balance(network, result.link_powers_w)`
+reports node residuals, signed reservoir powers, and total heat input/output.
+Check the node residuals even when the global balance is zero. See
+[diagnostics](docs/diagnostics.md) for the sign convention and a runnable example.
 
 A physics CLI is planned for D05 and the Streamlit interface for D27.
 The Python API and the example are the available ways to run D01 calculations.
