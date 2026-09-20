@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "nodes": [
+    {"id": "heater", "power_w": 10.0},
+    {"id": "bath", "fixed_temperature_k": 300.0}
+  ],
+  "links": [
+    {"id": "strap", "node_a": "heater", "node_b": "bath", "conductance_w_k": 2.0}
+  ]
+}

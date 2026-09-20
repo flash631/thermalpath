@@ -6,7 +6,8 @@ units, reproducible examples, and evidence they can inspect.
 
 The library implements a steady series-resistance calculation, typed network
 inputs with SI validation, a steady conductance-matrix network solver, and
-connectivity and signed heat-balance diagnostics.
+connectivity and signed heat-balance diagnostics, versioned JSON cases, and a
+network command.
 Transients, a 2D heat spreader,
 design studies, reports, and a small Streamlit interface are planned in
 [ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
@@ -118,8 +119,12 @@ reports node residuals, signed reservoir powers, and total heat input/output.
 Check the node residuals even when the global balance is zero. See
 [diagnostics](docs/diagnostics.md) for the sign convention and a runnable example.
 
-A physics CLI is planned for D05 and the Streamlit interface for D27.
-The Python API and the example are the available ways to run D01 calculations.
+`loads_case` and `dumps_case` read and write version-1 JSON network inputs.
+Run `thermalpath run-network examples/cases/heater.json` after installation,
+or use `python -m thermalpath.cli run-network examples/cases/heater.json`.
+The command prints temperatures, signed link powers, and heat-balance diagnostics
+as JSON. See [case format and exit codes](docs/cases.md). The Streamlit interface
+is planned for D27.
 
 ## Run the checks
 

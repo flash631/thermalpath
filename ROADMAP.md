@@ -21,10 +21,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: disconnected/unanchored components produce clear errors; source,
   sink, and link power accounting closes on independent multi-node fixtures.
   Completion date: 2026-09-19. Evidence: docs/devlog/day04.md.
-- [ ] D05 | io/cli | Versioned JSON cases and run-network command.
+- [x] D05 | io/cli | Versioned JSON cases and run-network command.
   Acceptance: document schema/units, reject unknown versions and malformed cases,
   round-trip a case, and integration-test CLI exit codes and numeric output.
-  Completion date: pending. Evidence: docs/devlog/day05.md.
+  Completion date: 2026-09-20. Evidence: docs/devlog/day05.md.
 - [ ] D06 | transient | One-node RC response with positive heat capacity.
   Acceptance: verify the exponential step response and its initial/long-time
   limits; distinguish stored energy from boundary power.

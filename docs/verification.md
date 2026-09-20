@@ -109,6 +109,23 @@ groups, malformed power mappings, and overflowing sums. The supplied flow
 checks deliberately do not establish q=G*dT. See [D04 limits](diagnostics.md)
 and the [D04 devlog](devlog/day04.md).
 
+## JSON and command verification
+
+Version-1 cases preserve node/link order, identifiers, and normalized binary64
+values through `loads_case(dumps_case(network))`. Tests reject malformed JSON,
+duplicate or unknown fields, unsupported versions, wrong types, invalid model
+domains, overflowing numbers, and nonzero floating tokens rounded to zero.
+UTF-8 file errors and unanchored solver inputs produce an error exit without
+successful result output. Subprocess tests exercise help and usage exit codes.
+
+The CLI reproduces the exact single-link reference T=300+10/2=305 K and q=10 W.
+It also reproduces the D03 rational temperatures/powers and D04 source/sink
+totals, using the same absolute error budgets documented above. A tiny load
+whose temperature rise rounds away retains its 1e-20 W residual in JSON output.
+These checks verify the interface to the existing solver; they add no new
+physical validation or general accuracy certificate. See the
+[D05 devlog](devlog/day05.md) and [case schema](cases.md).
+
 ## Coverage and future verification
 
 `scripts/check.py` measures lines and branches over `thermalpath`, including

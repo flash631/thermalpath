@@ -12,6 +12,9 @@ license = "MIT"
 authors = [{name = "ThermalPath contributors"}]
 dependencies = ["numpy>=2.0", "scipy>=1.14", "matplotlib>=3.9"]
 
+[project.scripts]
+thermalpath = "thermalpath.cli:main"
+
 [project.optional-dependencies]
 app = ["streamlit>=1.40"]
 dev = ["pytest>=8", "pytest-cov>=6", "ruff>=0.9", "build>=1.2"]
