@@ -126,6 +126,37 @@ These checks verify the interface to the existing solver; they add no new
 physical validation or general accuracy certificate. See the
 [D05 devlog](devlog/day05.md) and [case schema](cases.md).
 
+## D06 RC response
+
+The reference tests independently solve the reservoir-offset equation with
+70-digit `Decimal` arithmetic, then derive boundary power, storage rate and
+integrated boundary heat. The fixed cases use `R=2 K/W`, `C=10 J/K`, `Tb=300 K`,
+and `(T0,P)` pairs `(300,5)`, `(330,0)`, `(300,-5)`, `(280,5)` in K and W.
+Times are 0, 1e-8, 5, 20, 100 and 2000 s. These exercise heating, cooling,
+heat extraction and a reservoir that initially supplies heat.
+
+With binary64 epsilon about 2.22e-16, temperature scales below 330 K, energy
+changes below 300 J, and powers below 15 W, a few units of last-place rounding
+allow absolute regression tolerances of 2e-13 K, 2e-12 J and 2e-14 W.
+Summing the power allowances gives 4e-14 W; integrated energy allows 4e-12 J.
+Relative tolerances are zero. These budgets apply to the declared fixtures and
+are not rigorous error bounds for arbitrary inputs or measurement uncertainty.
+
+At `t=1e-5 s`, the initial slope fixture has `t/tau=5e-7`; the average slope
+differs from `P/C=0.5 K/s` by about `t/(2 tau)=2.5e-7` relatively.
+The test allows `3e-7`, including subtraction rounding. Capacity/time scaling,
+monotonicity, no overshoot, exact initial values and the long-time limits are
+checked separately. Stored energy and boundary heat sum to the applied energy.
+
+Adverse tests retain energy for a small time or load even when the reported
+temperature rounds to the initial 300 K. Another preserves the documented zero
+change when the dimensionless time underflows. Extreme late cooling checks
+that subtracting two large temperatures does not erase a positive equilibrium.
+Overflowing intermediates, invalid domains and nonpositive equilibrium are
+rejected. See [D06 decisions](decisions/0006-one-node-rc.md) and
+[the transient equations](transient.md). No time-step refinement applies to a
+closed-form evaluation, and no physical validation is claimed.
+
 ## Coverage and future verification
 
 `scripts/check.py` measures lines and branches over `thermalpath`, including

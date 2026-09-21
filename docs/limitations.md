@@ -32,3 +32,12 @@ imbalance can hide nonzero node residuals, so each unknown-node balance must be
 checked. Even zero nodal residuals do not verify the temperature/conductance law
 or physical validity. Sums can overflow and boundary totals are rounded before
 global accounting. See [diagnostic limits](diagnostics.md#arithmetic-and-interpretation-limits).
+
+D06 represents one uniform-temperature body with constant positive heat capacity
+and resistance to a fixed reservoir under constant signed power. It requires
+positive initial and equilibrium temperatures. Stored energy change and power
+can retain information lost from a rounded absolute temperature. Extremely small
+time ratios and products can underflow, while conservative intermediate-range
+checks can reject a finite requested result. See [RC scope](transient.md#numerical-scope).
+There is no physical validation, network time integration, or arbitrary-input
+error certificate.

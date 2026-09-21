@@ -7,8 +7,8 @@ units, reproducible examples, and evidence they can inspect.
 The library implements a steady series-resistance calculation, typed network
 inputs with SI validation, a steady conductance-matrix network solver, and
 connectivity and signed heat-balance diagnostics, versioned JSON cases, and a
-network command.
-Transients, a 2D heat spreader,
+network command. It also evaluates a one-node thermal RC step response.
+Transient networks, a 2D heat spreader,
 design studies, reports, and a small Streamlit interface are planned in
 [ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
 
@@ -126,6 +126,12 @@ The command prints temperatures, signed link powers, and heat-balance diagnostic
 as JSON. See [case format and exit codes](docs/cases.md). The Streamlit interface
 is planned for D27.
 
+`rc_step` evaluates the closed-form response of a single body with positive heat
+capacity and resistance to a fixed reservoir. `RCResult` separates stored energy
+change in joules from boundary heat flow and storage rate in watts. See the
+[RC response](docs/transient.md) for equations, a runnable example, references
+and floating-point limits.
+
 ## Run the checks
 
 ```powershell
@@ -146,8 +152,9 @@ evidence.
 
 ## Limits and contribution
 
-This release predicts prescribed series paths and steady lumped networks with
-constant conductances and fixed boundary temperatures. It does not predict
+This release predicts prescribed series paths, steady lumped networks, and a
+one-node transient with constant properties and fixed boundary temperatures.
+It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
 engineering accuracy. Read [limitations](docs/limitations.md) before using a
