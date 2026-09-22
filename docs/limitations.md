@@ -39,5 +39,14 @@ positive initial and equilibrium temperatures. Stored energy change and power
 can retain information lost from a rounded absolute temperature. Extremely small
 time ratios and products can underflow, while conservative intermediate-range
 checks can reject a finite requested result. See [RC scope](transient.md#numerical-scope).
-There is no physical validation, network time integration, or arbitrary-input
-error certificate.
+The RC function has no network time integration or arbitrary-input error
+certificate. No physical validation is claimed.
+
+D07 adds constant-conductance network time integration with positive capacities,
+fixed reservoirs and piecewise constant loads on an explicit time grid.
+Backward Euler is stable for the passive linear model, but a coarse step can
+have large temporal error. Finite positive grid temperatures do not prove a
+positive continuous trajectory under extraction. Extreme scales can destroy
+matrix accuracy, and small temperature rises may round away. There are no
+step energy reports or time-refinement measurements yet. See
+[transient network limits](transient_networks.md#limits).

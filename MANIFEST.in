@@ -64,3 +64,11 @@ include tests/verification/test_series_reference.py
 include tests/verification/test_network_reference.py
 include tests/verification/test_heat_balance_reference.py
 include tests/verification/test_rc_reference.py
+include src/thermalpath/transient_networks.py
+include tests/unit/test_transient_networks.py
+include tests/verification/test_transient_network_reference.py
+include tests/integration/test_transient_network_example.py
+include examples/transient_network.py
+include docs/transient_networks.md
+include docs/decisions/0007-backward-euler-networks.md
+include docs/devlog/day07.md

@@ -29,10 +29,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: verify the exponential step response and its initial/long-time
   limits; distinguish stored energy from boundary power.
   Completion date: 2026-09-21. Evidence: docs/devlog/day06.md.
-- [ ] D07 | transient | Backward-Euler networks with piecewise loads.
+- [x] D07 | transient | Backward-Euler networks with piecewise loads.
   Acceptance: positive capacitances, valid ordered times and load changes;
   derive the update matrix and verify a two-node reference and fixed boundaries.
-  Completion date: pending. Evidence: docs/devlog/day07.md.
+  Completion date: 2026-09-22. Evidence: docs/devlog/day07.md.
 - [ ] D08 | verification | Transient energy accounting and time refinement.
   Acceptance: account for each step's storage/source/boundary energy and use
   at least three time steps to assess expected first-order temporal error.

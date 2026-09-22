@@ -173,3 +173,38 @@ adverse or unresolved outcomes.
 
 See [day01.md](devlog/day01.md) for executed local evidence. Public CI outcomes
 must be obtained from the specific run, not inferred from local execution.
+
+## D07 backward-Euler network references
+
+A two-node fixture has capacities `(2,3) J/K`, an inter-node conductance of
+`1 W/K`, and reservoir conductances `(2,1) W/K` to 300 K. Starting at 300 K,
+apply `(10,0) W` for 1 s, `(0,6) W` for 2 s, and `(-2,1) W` for 0.5 s.
+In temperature rises above 300 K, the exact matrix is
+`[[2/h+3,-1],[-1,3/h+2]]`. Its inverse follows directly from the 2-by-2
+determinant. The test uses rational arithmetic throughout the recurrence;
+only the final reference temperatures are converted to floats.
+
+After the first step, temperatures are `3625/12 K` and `3605/12 K`.
+After the second, they are `46967/156 K` and `47143/156 K`.
+The reservoir is exactly 300 K at every step. Reversing all link orientations
+leaves temperatures unchanged. The three reference matrices have condition
+numbers below 2. Each update uses only a few additions/products and a two-node
+solve. A conservative fixture budget of 32 binary64 epsilons times 310 K is
+about `2.2e-12 K`; the test uses `2e-12 K` absolute tolerance and no relative
+allowance. This is a test budget for these small, well-scaled cases, not a
+rigorous global error bound. The example's 12-decimal output also fits this
+budget. An initially incorrect second-row example reference was corrected by
+recomputing the rational recurrence; the general reference test was unchanged.
+
+An insulated pair with unit capacities and conductance keeps its 300 K mean
+while its temperature difference decays by `1/3` each one-second step.
+Other tests cover isolated signed heating, unequal interval lengths, an unchanged
+steady state, two fixed boundaries, all-fixed inputs, parallel links, and joint
+time/capacity scaling. Invalid maps, nonpositive capacities, unordered times,
+wrong load counts, nonfinite data, and extraction to nonpositive temperatures
+are rejected. A forced nonfinite solver output tests the result guard.
+
+Adverse tests preserve a rounded-away tiny temperature rise and reject a
+numerically singular insulated matrix when conductance overwhelms capacity.
+They do not certify arbitrary conditioning or continuous-time accuracy.
+See [D07 decisions](decisions/0007-backward-euler-networks.md).

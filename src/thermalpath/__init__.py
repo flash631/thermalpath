@@ -6,6 +6,7 @@ from thermalpath.models import Link, Network, Node
 from thermalpath.networks import SteadyResult, solve_steady
 from thermalpath.resistance import conduction_resistance, series_temperature
 from thermalpath.transient import RCResult, rc_step
+from thermalpath.transient_networks import TransientResult, solve_transient
 
 __all__ = [
     "HeatBalance",
@@ -14,6 +15,7 @@ __all__ = [
     "Node",
     "RCResult",
     "SteadyResult",
+    "TransientResult",
     "check_connectivity",
     "conduction_resistance",
     "dumps_case",
@@ -22,4 +24,5 @@ __all__ = [
     "rc_step",
     "series_temperature",
     "solve_steady",
+    "solve_transient",
 ]

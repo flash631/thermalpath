@@ -7,9 +7,9 @@ units, reproducible examples, and evidence they can inspect.
 The library implements a steady series-resistance calculation, typed network
 inputs with SI validation, a steady conductance-matrix network solver, and
 connectivity and signed heat-balance diagnostics, versioned JSON cases, and a
-network command. It also evaluates a one-node thermal RC step response.
-Transient networks, a 2D heat spreader,
-design studies, reports, and a small Streamlit interface are planned in
+network command. It also evaluates a one-node thermal RC step response and
+backward-Euler networks with piecewise constant loads.
+A 2D heat spreader, design studies, reports, and a small Streamlit interface are planned in
 [ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
 
 ## Install
@@ -75,6 +75,9 @@ sink. Conductivity and geometry are constant. Each resistance must represent a
 distinct part of this path. There is no storage, parallel heat loss, or feedback
 from temperature to power. See [theory](docs/theory.md) for the derivation and
 the separate formulation planned for the depth-averaged plate.
+
+For transient network inputs, interval load conventions, and a runnable example,
+see [backward-Euler networks](docs/transient_networks.md).
 
 ## Verification and a design decision
 
@@ -153,7 +156,8 @@ evidence.
 ## Limits and contribution
 
 This release predicts prescribed series paths, steady lumped networks, and a
-one-node transient with constant properties and fixed boundary temperatures.
+one-node and network transients with constant properties and fixed boundary
+temperatures.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
