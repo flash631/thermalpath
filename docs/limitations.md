@@ -47,6 +47,14 @@ fixed reservoirs and piecewise constant loads on an explicit time grid.
 Backward Euler is stable for the passive linear model, but a coarse step can
 have large temporal error. Finite positive grid temperatures do not prove a
 positive continuous trajectory under extraction. Extreme scales can destroy
-matrix accuracy, and small temperature rises may round away. There are no
-step energy reports or time-refinement measurements yet. See
+matrix accuracy, and small temperature rises may round away. See
 [transient network limits](transient_networks.md#limits).
+
+D08 adds per-step energy accounting and four-grid measurements for two smooth
+linear reference problems. Endpoint conductive energy is a discrete quadrature;
+zero residual does not imply a small continuous-time temperature error. Local
+errors can cancel globally and missing temperature differences cannot be
+recovered. Products or sums outside float range fail; accepted subnormal values
+can have poor relative accuracy. There is no universal tolerance, adaptive time
+selection, arbitrary-network error certificate or physical validation. See
+[energy limits](transient_energy.md#interpretation-and-range-limits).

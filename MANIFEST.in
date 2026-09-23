@@ -72,3 +72,11 @@ include examples/transient_network.py
 include docs/transient_networks.md
 include docs/decisions/0007-backward-euler-networks.md
 include docs/devlog/day07.md
+include src/thermalpath/transient_energy.py
+include tests/unit/test_transient_energy.py
+include tests/verification/test_transient_energy_reference.py
+include tests/integration/test_transient_refinement_example.py
+include examples/transient_refinement.py
+include docs/transient_energy.md
+include docs/decisions/0008-transient-energy.md
+include docs/devlog/day08.md

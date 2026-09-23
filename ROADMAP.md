@@ -33,10 +33,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: positive capacitances, valid ordered times and load changes;
   derive the update matrix and verify a two-node reference and fixed boundaries.
   Completion date: 2026-09-22. Evidence: docs/devlog/day07.md.
-- [ ] D08 | verification | Transient energy accounting and time refinement.
+- [x] D08 | verification | Transient energy accounting and time refinement.
   Acceptance: account for each step's storage/source/boundary energy and use
   at least three time steps to assess expected first-order temporal error.
-  Completion date: pending. Evidence: docs/devlog/day08.md.
+  Completion date: 2026-09-23. Evidence: docs/devlog/day08.md.
 - [ ] D09 | grid | Rectangular structured-grid geometry.
   Acceptance: verify cell/face areas, thickness-scaled volumes, indexing,
   neighbor consistency, total domain area, and invalid dimensions.

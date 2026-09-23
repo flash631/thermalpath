@@ -82,7 +82,7 @@ def solve_transient(
     arithmetic. Uses dense binary64 solves with no accuracy certificate.
     Negative loads can produce invalid temperatures. Positivity checks cover
     computed grid states only, not the underlying continuous trajectory.
-    Step energy reports and temporal refinement are separate verification work.
+    Use transient_energy_balance with the same interval loads for step accounting.
     """
     if not isinstance(network, Network):
         raise ValueError("network must be a Network")

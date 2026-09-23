@@ -208,3 +208,36 @@ Adverse tests preserve a rounded-away tiny temperature rise and reject a
 numerically singular insulated matrix when conductance overwhelms capacity.
 They do not certify arbitrary conditioning or continuous-time accuracy.
 See [D07 decisions](decisions/0007-backward-euler-networks.md).
+
+## D08 energy and temporal verification
+
+The D07 rational recurrence independently supplies old/new temperatures for
+three unequal intervals. Exact fractions give C times each temperature change,
+duration times each signed source, and reservoir input `-h*(2*x_new+y_new)`.
+Their sum closes exactly before float conversion. Reversing all link
+orientations leaves every reported energy unchanged. The first interval has
+storage `(25/6, 5/4) J`, source `(10,0) J`, and reservoir input `-55/12 J`.
+
+The D07 temperature budget is `2e-12 K` per endpoint. Multiplying the sum of
+two endpoint errors by the largest capacity, 3 J/K, gives `1.2e-11 J` for a
+node's storage. Reservoir energy uses h <= 2 s and total conductance 3 W/K,
+giving the same `1.2e-11 J` budget. Total storage has `2e-11 J` allowance;
+local and global residual budgets are `3e-11 J` and `4e-11 J`, respectively.
+These are conservative test tolerances for this fixture, not rigorous universal
+error bounds. Integer heating and reservoir-exchange fixtures close exactly.
+
+For the two smooth fixtures in [the report](transient_energy.md), a 70-digit
+Decimal exponential provides the continuous reference. Exact rational powers
+give every final discrete modal amplitude. Across at most 40 small, well-scaled
+solves, `2e-11 K` allows roughly 300 binary64 epsilons at 310 K. The per-step
+energy budget is `5e-11 J`, allowing roundoff in the small solves and endpoint
+subtraction. These errors are far below the smallest measured temporal error,
+about 0.0455 K. Observed orders must lie in the predefined 0.93 to 1.01 interval
+and increase through the four-grid sequence. This confirms first-order behavior
+on these fixtures only. The insulated pair also preserves its 300 K mean.
+
+Tests reject incomplete maps, invalid domains and changed fixed boundaries.
+Overflow and products rounded to zero fail explicitly. Opposite local residuals
+with zero total, a 1 J remainder lost by subtracting rounded totals, and a
+1e-20 J residual from rounded-away heating remain visible. The runnable report
+is tested in a subprocess against the rational discrete solution.

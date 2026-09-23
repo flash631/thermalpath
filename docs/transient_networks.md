@@ -76,8 +76,8 @@ has a nonnegative inverse. Signed extraction does not have that guarantee.
 
 Backward Euler is first order for smooth time evolution: inserting a smooth
 exact solution gives a derivative residual proportional to h. Unconditional
-linear stability does not mean that a large step is accurate. This increment
-verifies the discrete update; a measured time-refinement study is separate work.
+linear stability does not mean that a large step is accurate. See
+[energy and refinement](transient_energy.md) for measured temporal errors.
 
 ## Limits
 
@@ -89,6 +89,7 @@ A finite solve does not certify conditioning or accuracy. A tiny heat input can
 leave the rounded absolute temperature unchanged. No continuous-trajectory
 positivity guarantee is provided for signed extraction between grid points.
 
-The result provides temperatures only. It does not report step energy balances,
-an error estimate, or a physical validation result. No experimental data were
-used. The JSON case schema and steady CLI are unchanged.
+The result provides temperatures only. Use `transient_energy_balance` to account
+for a step with the same capacities and interval loads. Neither function supplies
+a general time-error estimate or physical validation result. No experimental
+data were used. The JSON case schema and steady CLI are unchanged.
