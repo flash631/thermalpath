@@ -58,3 +58,9 @@ recovered. Products or sums outside float range fail; accepted subnormal values
 can have poor relative accuracy. There is no universal tolerance, adaptive time
 selection, arbitrary-network error certificate or physical validation. See
 [energy limits](transient_energy.md#interpretation-and-range-limits).
+
+D09 supplies rectangular geometry with constant thickness and explicit edges.
+Range checks reject collapsed cells and nonrepresentable centers/measures, but
+do not certify accuracy at extreme coordinate offsets or subnormal scales.
+It assigns no thermal boundary conditions and provides no spatial solver or
+mesh-convergence evidence. See [geometry limits](grid.md#verification-and-numerical-limits).

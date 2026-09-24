@@ -11,6 +11,8 @@ network command. It also evaluates a one-node thermal RC step response and
 backward-Euler networks with piecewise constant loads.
 Step energy reports and fixed time-refinement examples separate discrete
 conservation from temporal error; see [transient verification](docs/transient_energy.md).
+Rectangular grid geometry provides cell centers, areas, volumes and neighbors;
+see [the geometry API](docs/grid.md).
 A 2D heat spreader, design studies, reports, and a small Streamlit interface are planned in
 [ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
 

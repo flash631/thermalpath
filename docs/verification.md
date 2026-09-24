@@ -241,3 +241,14 @@ Overflow and products rounded to zero fail explicitly. Opposite local residuals
 with zero total, a 1 J remainder lost by subtracting rounded totals, and a
 1e-20 J residual from rounded-away heating remain visible. The runnable report
 is tested in a subprocess against the rational discrete solution.
+
+## D09 geometry references
+
+Exact rational rectangular-prism measures verify the six-cell fixture in
+[grid.md](grid.md#verification-and-numerical-limits). Five grid shapes verify
+area/volume partition, shared faces and outer lateral area. An explicit table
+checks x-first indexing and neighbors. Scaling and translated-coordinate tests
+exercise geometry invariants. Areas and volumes use `5e-15` relative tolerance
+with zero absolute tolerance; reference centers use `2e-16 m` absolute tolerance
+with zero relative tolerance. Rejected collapsed cells and arithmetic range
+failures remain tested. These checks establish no thermal convergence result.

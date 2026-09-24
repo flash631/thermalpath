@@ -37,10 +37,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: account for each step's storage/source/boundary energy and use
   at least three time steps to assess expected first-order temporal error.
   Completion date: 2026-09-23. Evidence: docs/devlog/day08.md.
-- [ ] D09 | grid | Rectangular structured-grid geometry.
+- [x] D09 | grid | Rectangular structured-grid geometry.
   Acceptance: verify cell/face areas, thickness-scaled volumes, indexing,
   neighbor consistency, total domain area, and invalid dimensions.
-  Completion date: pending. Evidence: docs/devlog/day09.md.
+  Completion date: 2026-09-24. Evidence: docs/devlog/day09.md.
 - [ ] D10 | plate | Constant-k finite-volume plate solver.
   Acceptance: fixed-temperature and insulated edges have explicit signs;
   recover a constant field and an independently derived linear profile.

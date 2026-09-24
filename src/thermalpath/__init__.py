@@ -1,6 +1,7 @@
 """Small, verified thermal engineering models in SI units."""
 
 from thermalpath.diagnostics import HeatBalance, check_connectivity, heat_balance
+from thermalpath.grid import RectangularGrid
 from thermalpath.io import dumps_case, loads_case
 from thermalpath.models import Link, Network, Node
 from thermalpath.networks import SteadyResult, solve_steady
@@ -18,6 +19,7 @@ __all__ = [
     "Network",
     "Node",
     "RCResult",
+    "RectangularGrid",
     "SteadyResult",
     "TransientEnergyBalance",
     "TransientResult",
