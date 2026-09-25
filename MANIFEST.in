@@ -88,3 +88,11 @@ include examples/rectangular_grid.py
 include docs/grid.md
 include docs/decisions/0009-rectangular-grid.md
 include docs/devlog/day09.md
+include src/thermalpath/plate.py
+include tests/unit/test_plate.py
+include tests/verification/test_plate_reference.py
+include tests/integration/test_plate_example.py
+include examples/steady_plate.py
+include docs/plate.md
+include docs/decisions/0010-constant-conductivity-plate.md
+include docs/devlog/day10.md

@@ -13,8 +13,10 @@ Step energy reports and fixed time-refinement examples separate discrete
 conservation from temporal error; see [transient verification](docs/transient_energy.md).
 Rectangular grid geometry provides cell centers, areas, volumes and neighbors;
 see [the geometry API](docs/grid.md).
-A 2D heat spreader, design studies, reports, and a small Streamlit interface are planned in
-[ROADMAP.md](ROADMAP.md). Those calculations and interfaces are not yet available.
+A source-free constant-conductivity plate solver supports fixed-temperature and
+insulated edges; see [the plate API](docs/plate.md). Heater loads, variable
+materials, design studies, reports and a small Streamlit interface remain planned
+in [ROADMAP.md](ROADMAP.md).
 
 ## Install
 
@@ -78,10 +80,13 @@ The same prescribed power flows through every resistance to a fixed-temperature
 sink. Conductivity and geometry are constant. Each resistance must represent a
 distinct part of this path. There is no storage, parallel heat loss, or feedback
 from temperature to power. See [theory](docs/theory.md) for the derivation and
-the separate formulation planned for the depth-averaged plate.
+the depth-averaged plate formulation.
 
 For transient network inputs, interval load conventions, and a runnable example,
 see [backward-Euler networks](docs/transient_networks.md).
+For the steady source-free plate, run `python examples/steady_plate.py`.
+Its [independent references](docs/plate.md#independent-references) cover constant
+fields, unequal-cell linear profiles and a rational two-dimensional case.
 
 ## Verification and a design decision
 
@@ -162,6 +167,8 @@ evidence.
 This release predicts prescribed series paths, steady lumped networks, and a
 one-node and network transients with constant properties and fixed boundary
 temperatures.
+It also solves small source-free constant-conductivity plates with prescribed
+edge temperatures or insulation.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish

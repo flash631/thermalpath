@@ -64,3 +64,13 @@ Range checks reject collapsed cells and nonrepresentable centers/measures, but
 do not certify accuracy at extreme coordinate offsets or subnormal scales.
 It assigns no thermal boundary conditions and provides no spatial solver or
 mesh-convergence evidence. See [geometry limits](grid.md#verification-and-numerical-limits).
+
+D10 solves small source-free steady plates with constant isotropic conductivity,
+uniform thickness, insulated broad faces and fixed-temperature or insulated
+edges. It reuses a dense network solve with quadratic matrix storage. Entirely
+insulated plates lack a unique absolute temperature and are rejected. Different
+fixed temperatures on adjacent edges may create a corner singularity in the
+continuum solution. Extreme numerical scales and tiny temperature differences
+can lose accuracy even when outputs are finite. The constant/linear references
+and rational 2D checks establish no general mesh-convergence order, arbitrary
+error certificate or physical validation. See [plate limits](plate.md#numerical-scope).

@@ -26,7 +26,7 @@ algebraic invariance check, not a measured convergence order.
 
 ## Planned plate formulation
 
-The later uniform-thickness, depth-averaged plate uses
+The general uniform-thickness, depth-averaged plate formulation is
 
 ```text
 -div(k t grad(T)) + h_face (T - T_ambient) = q_area
@@ -56,3 +56,10 @@ area/nodes and the temperature represented at each end. Do not append a package
 or contact temperature drop if it duplicates resistance already resolved by the
 plate or its boundary condition. These future equations do not imply that a
 plate solver exists in D01.
+
+D10 implements the constant-k, source-free restriction with zero face loss,
+fixed-temperature or insulated edges, and no storage. Integrating over each
+rectangle gives the outward face balance with `G=k*A/d`. See
+[plate theory](plate.md#equations-and-uniqueness) for boundary distances,
+uniqueness and independent references. Sources, variable materials and
+convection remain later increments.

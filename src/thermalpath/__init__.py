@@ -5,6 +5,7 @@ from thermalpath.grid import RectangularGrid
 from thermalpath.io import dumps_case, loads_case
 from thermalpath.models import Link, Network, Node
 from thermalpath.networks import SteadyResult, solve_steady
+from thermalpath.plate import PlateResult, solve_plate
 from thermalpath.resistance import conduction_resistance, series_temperature
 from thermalpath.transient import RCResult, rc_step
 from thermalpath.transient_energy import (
@@ -18,6 +19,7 @@ __all__ = [
     "Link",
     "Network",
     "Node",
+    "PlateResult",
     "RCResult",
     "RectangularGrid",
     "SteadyResult",
@@ -30,6 +32,7 @@ __all__ = [
     "loads_case",
     "rc_step",
     "series_temperature",
+    "solve_plate",
     "solve_steady",
     "solve_transient",
     "transient_energy_balance",

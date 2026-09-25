@@ -252,3 +252,22 @@ exercise geometry invariants. Areas and volumes use `5e-15` relative tolerance
 with zero absolute tolerance; reference centers use `2e-16 m` absolute tolerance
 with zero relative tolerance. Rejected collapsed cells and arithmetic range
 failures remain tested. These checks establish no thermal convergence result.
+
+## D10 steady plate references
+
+The [plate references](plate.md#independent-references) independently derive
+constant and linear continuum solutions and an explicit four-cell 2D matrix.
+Exact rational substitution verifies the reference temperatures and powers
+without using the numerical assembly. Unequal cells, both coordinate axes,
+reversed temperature gradients, individual edge anchors and a one-cell weighted
+mean exercise boundary placement and signs. Conductivity/thickness scaling
+leaves temperatures unchanged and scales powers. The executable example
+independently recovers a 4 W transfer from the east edge to the west edge.
+
+Small-fixture budgets are `2e-12 K` for temperatures and `5e-11 W` for powers,
+with zero relative tolerance; [their derivation](plate.md#numerical-scope)
+also covers the four-cell balance and scaling allowances. Shared powers are
+exact negatives by construction. Explicit adverse tests reject out-of-range
+conductances and matrix products and retain a rounded-away temperature rise
+with a nonzero balance. These checks do not measure a general spatial
+convergence order or provide physical validation.

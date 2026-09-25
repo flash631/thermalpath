@@ -41,10 +41,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: verify cell/face areas, thickness-scaled volumes, indexing,
   neighbor consistency, total domain area, and invalid dimensions.
   Completion date: 2026-09-24. Evidence: docs/devlog/day09.md.
-- [ ] D10 | plate | Constant-k finite-volume plate solver.
+- [x] D10 | plate | Constant-k finite-volume plate solver.
   Acceptance: fixed-temperature and insulated edges have explicit signs;
   recover a constant field and an independently derived linear profile.
-  Completion date: pending. Evidence: docs/devlog/day10.md.
+  Completion date: 2026-09-25. Evidence: docs/devlog/day10.md.
 - [ ] D11 | plate | Piecewise material conductivity.
   Acceptance: derive resistance-consistent face conductances and verify the
   two-material 1D flux and interface temperature for unequal cell widths.
