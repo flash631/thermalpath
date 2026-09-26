@@ -271,3 +271,19 @@ exact negatives by construction. Explicit adverse tests reject out-of-range
 conductances and matrix products and retain a rounded-away temperature rise
 with a nonzero balance. These checks do not measure a general spatial
 convergence order or provide physical validation.
+
+## D11 piecewise material references
+
+The [material derivation](plate_materials.md) adds two half-cell resistances
+at each interface. A separate continuum two-layer calculation verifies flux,
+unequal-cell center temperatures and two-sided interface reconstruction in
+both axes and flow directions. A four-cell rational system checks conductivity
+ordering in two dimensions and every signed face power. Exact rational cell
+balances vanish independently of the floating solve. Uniform-sequence inputs
+match scalar results exactly. Scaling, one-cell and constant-field limits,
+large conductivity contrasts and invalid material inputs are tested.
+
+Resistance-factor overflow, underflow and sum overflow remain explicit errors,
+as do final conductance range failures. The documented temperature and power
+allowances depend on each fixture's conductances. These checks establish
+neither arbitrary-input error bounds nor physical validation.

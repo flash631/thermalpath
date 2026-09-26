@@ -1,5 +1,6 @@
-"""Source-free, constant-conductivity finite-volume plate solutions."""
+"""Source-free finite-volume plates with cellwise isotropic conductivity."""
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from thermalpath.grid import RectangularGrid
@@ -27,7 +28,7 @@ class PlateResult:
 
 def solve_plate(
     grid: RectangularGrid,
-    conductivity_w_m_k: float,
+    conductivity_w_m_k: float | Sequence[float],
     *,
     west_k: float | None = None,
     east_k: float | None = None,
@@ -40,8 +41,10 @@ def solve_plate(
     ----------
     grid : RectangularGrid
         Orthogonal cells with constant positive thickness [m].
-    conductivity_w_m_k : float
-        Finite positive, uniform isotropic conductivity [W/(m K)].
+    conductivity_w_m_k : float or sequence of float
+        Finite positive isotropic conductivity [W/(m K)]. A scalar applies
+        everywhere; a flat sequence supplies one value per cell in x-first
+        order. Material interfaces must follow cell faces, with perfect contact.
     west_k, east_k, south_k, north_k : float or None, optional
         Constant positive temperature [K] on the named geometric edge.
         None means insulated (zero outward power). At least one fixed edge
@@ -60,9 +63,10 @@ def solve_plate(
 
     Notes
     -----
-    Solves sum_faces G * (T_cell - T_other) = 0, with G = k * A / d.
-    A includes thickness. Internal d is the sum of adjacent half widths;
-    boundary d is the cell half width, not the full width. The two broad
+    Solves sum_faces G * (T_cell - T_other) = 0. Internal conductance is
+    A / (d_cell/k_cell + d_other/k_other), using the two half widths.
+    A includes thickness. A fixed boundary uses G = k_cell*A/d_cell,
+    with the cell half width, not the full width. The two broad
     faces are insulated and there is no heat generation or storage.
     Reuses the dense network solver: memory grows quadratically with cell
     count. Intended for small grids. Finite results do not certify accuracy,
@@ -70,7 +74,18 @@ def solve_plate(
     """
     if not isinstance(grid, RectangularGrid):
         raise ValueError("grid must be a RectangularGrid")
-    conductivity = _scalar(conductivity_w_m_k, "conductivity_w_m_k", positive=True)
+    if isinstance(conductivity_w_m_k, Sequence) and not isinstance(
+        conductivity_w_m_k, (str, bytes)
+    ):
+        if len(conductivity_w_m_k) != grid.cell_count:
+            raise ValueError("conductivity sequence must contain one value per cell")
+        conductivities = tuple(
+            _scalar(value, f"conductivity_w_m_k[{cell}]", positive=True)
+            for cell, value in enumerate(conductivity_w_m_k)
+        )
+    else:
+        conductivity = _scalar(conductivity_w_m_k, "conductivity_w_m_k", positive=True)
+        conductivities = (conductivity,) * grid.cell_count
     edges = (west_k, east_k, south_k, north_k)
     names = ("west", "east", "south", "north")
     nodes = [Node(str(cell)) for cell in range(grid.cell_count)]
@@ -89,6 +104,7 @@ def solve_plate(
     links = []
     faces = []
     for cell in range(grid.cell_count):
+        conductivity = conductivities[cell]
         ix, iy = grid.indices(cell)
         distances = (widths[ix] / 2,) * 2 + (heights[iy] / 2,) * 2
         for side, neighbor in enumerate(grid.neighbors(cell)):
@@ -105,11 +121,26 @@ def solve_plate(
                 distance = distances[side]
                 endpoint = names[side]
             distance = _scalar(distance, "face distance", positive=True)
-            conductance = _scalar(
-                conductivity * grid.face_areas_m2(cell)[side] / distance,
-                "face conductance",
-                positive=True,
-            )
+            area = grid.face_areas_m2(cell)[side]
+            if neighbor is not None and conductivity != conductivities[neighbor]:
+                # Series half-cell resistances, multiplied by the common area.
+                left = _scalar(
+                    distances[side] / conductivity,
+                    "face resistance factor",
+                    positive=True,
+                )
+                right = _scalar(
+                    other_half / conductivities[neighbor],
+                    "face resistance factor",
+                    positive=True,
+                )
+                resistance_factor = _scalar(
+                    left + right, "face resistance factor", positive=True
+                )
+                conductance = area / resistance_factor
+            else:
+                conductance = conductivity * area / distance
+            conductance = _scalar(conductance, "face conductance", positive=True)
             link_id = str(len(links))
             links.append(Link(link_id, str(cell), endpoint, conductance))
             faces.append((link_id, cell, side, neighbor))

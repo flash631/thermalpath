@@ -1,7 +1,9 @@
-# Constant-conductivity steady plate
+# Steady finite-volume plate
 
-`solve_plate` solves a source-free plate with constant isotropic conductivity
-and uniform thickness on a `RectangularGrid`. Each lateral edge is either a
+`solve_plate` solves a source-free plate with isotropic conductivity
+and uniform thickness on a `RectangularGrid`. A scalar conductivity is uniform;
+a flat sequence assigns one value per cell. See [piecewise materials](plate_materials.md)
+for the interface derivation and references. Each lateral edge is either a
 fixed positive temperature in kelvin or insulated. Both broad faces are
 insulated. The temperature is assumed uniform through the thickness. Inputs
 are synthetic unless separate measurement provenance is supplied.
@@ -104,9 +106,9 @@ cell balances in rational arithmetic and check all sixteen signed powers.
 
 The implementation converts the cell connections to the existing dense steady
 network solver. For N cells, matrix storage is O(N squared) and the direct
-solve costs O(N cubed) operations. Use small grids. No sparse solve, variable
-material, heater mapping, flux/convection boundary or transient plate API is
-provided by this increment.
+solve costs O(N cubed) operations. Use small grids. Cellwise material
+conductivity is supported; no sparse solve, heater mapping, flux/convection
+boundary or transient plate API is provided yet.
 
 The small references use `2e-12 K` absolute temperature tolerance and `5e-11 W`
 absolute face-power tolerance, with zero relative tolerance. At 340 K the
@@ -120,7 +122,7 @@ roundoff. Scaling tests multiply the power allowance by the largest scale, 12.
 These tolerances are fixture budgets, not rigorous bounds for arbitrary inputs.
 
 Nonfinite/zero-rounded conductances, singular or out-of-range solves, and
-nonpositive solved temperatures fail explicitly. Evaluation uses `(k*A)/d`;
+nonpositive solved temperatures fail explicitly. Uniform-k evaluation uses `(k*A)/d`;
 an intermediate product may overflow or underflow even if a rearranged final
 expression would fit. Extreme aspect ratios, coordinate offsets, conductance
 scales and accepted subnormal values can reduce accuracy. Half widths represent

@@ -74,3 +74,12 @@ continuum solution. Extreme numerical scales and tiny temperature differences
 can lose accuracy even when outputs are finite. The constant/linear references
 and rational 2D checks establish no general mesh-convergence order, arbitrary
 error certificate or physical validation. See [plate limits](plate.md#numerical-scope).
+
+D11 extends the plate to positive cellwise isotropic conductivity. Material
+interfaces must align with cell faces and have perfect thermal contact.
+The model does not include contact resistance, anisotropy, temperature-dependent
+properties or subcell material mixtures. High contrasts can reduce numerical
+accuracy. Resistance factors and their sum must remain positive and finite;
+an arithmetic-range rejection need not mean the physical problem is invalid.
+The two-layer references verify flux and interface temperature, not general
+mesh convergence or physical validity. See [material limits](plate_materials.md).

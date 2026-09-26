@@ -13,9 +13,10 @@ Step energy reports and fixed time-refinement examples separate discrete
 conservation from temporal error; see [transient verification](docs/transient_energy.md).
 Rectangular grid geometry provides cell centers, areas, volumes and neighbors;
 see [the geometry API](docs/grid.md).
-A source-free constant-conductivity plate solver supports fixed-temperature and
-insulated edges; see [the plate API](docs/plate.md). Heater loads, variable
-materials, design studies, reports and a small Streamlit interface remain planned
+A source-free plate solver supports uniform or cellwise isotropic conductivity,
+fixed-temperature and insulated edges; see [the plate API](docs/plate.md) and
+[piecewise materials](docs/plate_materials.md). Heater loads,
+design studies, reports and a small Streamlit interface remain planned
 in [ROADMAP.md](ROADMAP.md).
 
 ## Install
@@ -167,8 +168,9 @@ evidence.
 This release predicts prescribed series paths, steady lumped networks, and a
 one-node and network transients with constant properties and fixed boundary
 temperatures.
-It also solves small source-free constant-conductivity plates with prescribed
-edge temperatures or insulation.
+It also solves small source-free plates with uniform or cellwise conductivity,
+perfect contact at aligned material faces, and prescribed edge temperatures
+or insulation.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish

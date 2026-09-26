@@ -45,10 +45,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: fixed-temperature and insulated edges have explicit signs;
   recover a constant field and an independently derived linear profile.
   Completion date: 2026-09-25. Evidence: docs/devlog/day10.md.
-- [ ] D11 | plate | Piecewise material conductivity.
+- [x] D11 | plate | Piecewise material conductivity.
   Acceptance: derive resistance-consistent face conductances and verify the
   two-material 1D flux and interface temperature for unequal cell widths.
-  Completion date: pending. Evidence: docs/devlog/day11.md.
+  Completion date: 2026-09-26. Evidence: docs/devlog/day11.md.
 - [ ] D12 | boundaries | Flux, edge convection, and face convection.
   Acceptance: use edge areas scaled by thickness, define face coefficient
   convention, and verify sign/zero-coefficient/large-coefficient limits.
