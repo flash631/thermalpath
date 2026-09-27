@@ -1,8 +1,10 @@
 """Source-free finite-volume plates with cellwise isotropic conductivity."""
 
-from collections.abc import Sequence
+import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
+from thermalpath.boundaries import Convection
 from thermalpath.grid import RectangularGrid
 from thermalpath.models import Link, Network, Node, _scalar
 from thermalpath.networks import solve_steady
@@ -10,7 +12,7 @@ from thermalpath.networks import solve_steady
 
 @dataclass(frozen=True)
 class PlateResult:
-    """Store cell temperatures and outward lateral-face powers.
+    """Store cell temperatures and outward lateral and broad-face powers.
 
     Attributes
     ----------
@@ -20,10 +22,14 @@ class PlateResult:
         Outward heat flow [W] for each cell, in west/east/south/north order.
         Positive means heat leaves that cell. Shared faces have opposite signs;
         insulated outer faces have exactly zero flow.
+    broad_face_powers_w : tuple of float
+        Combined outward power [W] through both broad faces, one value per
+        cell. Solver results contain zeros when broad faces are insulated.
     """
 
     temperatures_k: tuple[float, ...]
     face_powers_w: tuple[tuple[float, ...], ...]
+    broad_face_powers_w: tuple[float, ...] = ()
 
 
 def solve_plate(
@@ -34,8 +40,11 @@ def solve_plate(
     east_k: float | None = None,
     south_k: float | None = None,
     north_k: float | None = None,
+    edge_flux_w_m2: Mapping[str, float] | None = None,
+    edge_convection: Mapping[str, Convection] | None = None,
+    face_convection: Convection | None = None,
 ) -> PlateResult:
-    """Solve a small steady plate with fixed-temperature or insulated edges.
+    """Solve a small steady plate with prescribed or convective boundaries.
 
     Parameters
     ----------
@@ -47,27 +56,41 @@ def solve_plate(
         order. Material interfaces must follow cell faces, with perfect contact.
     west_k, east_k, south_k, north_k : float or None, optional
         Constant positive temperature [K] on the named geometric edge.
-        None means insulated (zero outward power). At least one fixed edge
-        is required. Adjacent fixed edges may have different temperatures.
+        None leaves the edge available for flux or convection; if neither is
+        supplied, it is insulated. Adjacent edges may differ.
+    edge_flux_w_m2 : mapping of str to float or None, optional
+        Constant outward-positive flux [W/m2] on any of west/east/south/north.
+        Negative values heat the plate. Uses lateral area including thickness.
+    edge_convection : mapping of str to Convection or None, optional
+        Constant film data on named lateral edges. Includes the adjacent
+        half-cell conduction resistance. Each edge permits only one boundary
+        type, including explicitly supplied zero flux or zero coefficient.
+    face_convection : Convection or None, optional
+        Combined broad-face coefficient times projected cell area. The
+        coefficient is the sum for both faces, with a shared ambient and no
+        extra factor of two. Temperature is uniform through the thickness.
 
     Returns
     -------
     PlateResult
-        Temperatures at cell centers and signed outward face powers.
+        Cell temperatures, lateral powers and combined broad-face powers.
 
     Raises
     ------
     ValueError
-        Inputs are invalid, all edges are insulated, a conductance is outside
-        positive finite float range, or the underlying steady solve fails.
+        Inputs are invalid, no fixed or positive-convection anchor exists,
+        a conductance is outside positive finite float range, or the
+        underlying steady solve fails.
 
     Notes
     -----
-    Solves sum_faces G * (T_cell - T_other) = 0. Internal conductance is
+    Solves sum_lateral Q_out + Q_broad_out = 0. Internal conductance is
     A / (d_cell/k_cell + d_other/k_other), using the two half widths.
     A includes thickness. A fixed boundary uses G = k_cell*A/d_cell,
-    with the cell half width, not the full width. The two broad
-    faces are insulated and there is no heat generation or storage.
+    with the cell half width, not the full width. Edge convection uses
+    G = A/(d_cell/k_cell + 1/h). Broad-face exchange uses G = h_sum*dx*dy,
+    without a through-thickness resistance. There is no volume generation
+    or storage. See docs/plate_boundaries.md for conventions and limits.
     Reuses the dense network solver: memory grows quadratically with cell
     count. Intended for small grids. Finite results do not certify accuracy,
     mesh convergence or physical validity. See docs/plate.md.
@@ -88,12 +111,32 @@ def solve_plate(
         conductivities = (conductivity,) * grid.cell_count
     edges = (west_k, east_k, south_k, north_k)
     names = ("west", "east", "south", "north")
-    nodes = [Node(str(cell)) for cell in range(grid.cell_count)]
+    fluxes = _edge_mapping(edge_flux_w_m2, "edge_flux_w_m2", names)
+    convection = _edge_mapping(edge_convection, "edge_convection", names)
+    fluxes = {name: _scalar(value, "edge flux") for name, value in fluxes.items()}
+    for boundary in (*convection.values(), face_convection):
+        if boundary is not None and not isinstance(boundary, Convection):
+            raise ValueError("convection data must be Convection")
+    if any(value is None for value in convection.values()):
+        raise ValueError("edge_convection entries must be Convection")
+    nodes = []
     for name, temperature in zip(names, edges, strict=True):
+        if sum((temperature is not None, name in fluxes, name in convection)) > 1:
+            raise ValueError(f"{name} has more than one boundary type")
         if temperature is not None:
             nodes.append(Node(name, fixed_temperature_k=temperature))
-    if all(temperature is None for temperature in edges):
-        raise ValueError("at least one fixed-temperature edge is required")
+        elif name in convection and convection[name].coefficient_w_m2_k > 0:
+            nodes.append(
+                Node(name, fixed_temperature_k=convection[name].ambient_temperature_k)
+            )
+    if face_convection is not None and face_convection.coefficient_w_m2_k > 0:
+        nodes.append(
+            Node("broad", fixed_temperature_k=face_convection.ambient_temperature_k)
+        )
+    if not nodes:
+        raise ValueError(
+            "at least one fixed-temperature or positive-convection anchor is required"
+        )
 
     widths = tuple(
         b - a for a, b in zip(grid.x_edges_m[:-1], grid.x_edges_m[1:], strict=True)
@@ -103,6 +146,8 @@ def solve_plate(
     )
     links = []
     faces = []
+    broad_links = []
+    powers = [[0.0] * 4 for _ in range(grid.cell_count)]
     for cell in range(grid.cell_count):
         conductivity = conductivities[cell]
         ix, iy = grid.indices(cell)
@@ -116,13 +161,42 @@ def solve_plate(
                 distance = distances[side] + other_half
                 endpoint = str(neighbor)
             else:
-                if edges[side] is None:
+                name = names[side]
+                if name in fluxes:
+                    power = _scalar(
+                        fluxes[name] * grid.face_areas_m2(cell)[side], "flux power"
+                    )
+                    if power == 0 and fluxes[name] != 0:
+                        raise ValueError(
+                            "flux power has nonzero magnitude below the float range"
+                        )
+                    powers[cell][side] = power
                     continue
+                if edges[side] is None:
+                    if (
+                        name not in convection
+                        or convection[name].coefficient_w_m2_k == 0
+                    ):
+                        continue
                 distance = distances[side]
                 endpoint = names[side]
             distance = _scalar(distance, "face distance", positive=True)
             area = grid.face_areas_m2(cell)[side]
-            if neighbor is not None and conductivity != conductivities[neighbor]:
+            if neighbor is None and names[side] in convection:
+                film = convection[names[side]].coefficient_w_m2_k
+                half_resistance = _scalar(
+                    distance / conductivity, "edge resistance factor", positive=True
+                )
+                film_resistance = _scalar(
+                    1 / film, "film resistance factor", positive=True
+                )
+                resistance_factor = _scalar(
+                    half_resistance + film_resistance,
+                    "edge resistance factor",
+                    positive=True,
+                )
+                conductance = area / resistance_factor
+            elif neighbor is not None and conductivity != conductivities[neighbor]:
                 # Series half-cell resistances, multiplied by the common area.
                 left = _scalar(
                     distances[side] / conductivity,
@@ -145,14 +219,43 @@ def solve_plate(
             links.append(Link(link_id, str(cell), endpoint, conductance))
             faces.append((link_id, cell, side, neighbor))
 
+        try:
+            load = math.fsum(-power for power in powers[cell])
+        except OverflowError as exc:
+            raise ValueError("summed flux power must be finite") from exc
+        nodes.append(Node(str(cell), power_w=load))
+        if face_convection is not None and face_convection.coefficient_w_m2_k > 0:
+            conductance = _scalar(
+                face_convection.coefficient_w_m2_k * grid.cell_area_m2(cell),
+                "broad-face conductance",
+                positive=True,
+            )
+            link_id = str(len(links))
+            links.append(Link(link_id, str(cell), "broad", conductance))
+            broad_links.append((link_id, cell))
+
     result = solve_steady(Network(tuple(nodes), tuple(links)))
-    powers = [[0.0] * 4 for _ in range(grid.cell_count)]
     for link_id, cell, side, neighbor in faces:
         power = result.link_powers_w[link_id]
         powers[cell][side] = power
         if neighbor is not None:
             powers[neighbor][side - 1] = -power
+    broad_powers = [0.0] * grid.cell_count
+    for link_id, cell in broad_links:
+        broad_powers[cell] = result.link_powers_w[link_id]
     return PlateResult(
         tuple(result.temperatures_k[str(cell)] for cell in range(grid.cell_count)),
         tuple(tuple(cell_powers) for cell_powers in powers),
+        tuple(broad_powers),
     )
+
+
+def _edge_mapping[T](
+    value: Mapping[str, T] | None, label: str, names: tuple[str, ...]
+) -> dict[str, T]:
+    """Copy a mapping and reject misspelled edge names."""
+    if value is None:
+        return {}
+    if not isinstance(value, Mapping) or any(name not in names for name in value):
+        raise ValueError(f"{label} must map west/east/south/north names to values")
+    return dict(value)

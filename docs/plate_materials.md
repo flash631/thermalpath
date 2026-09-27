@@ -17,9 +17,10 @@ assert abs(result.temperatures_k[1] - 335) < 2e-12
 assert abs(result.face_powers_w[1][1] - 10) < 5e-11
 ```
 
-The source-free, steady, insulated-broad-face assumptions and fixed-temperature
-or insulated edge conditions of the [plate solver](plate.md) still apply.
-`PlateResult` retains the same temperatures and signed outward face powers.
+The references here use steady, source-free plates with insulated broad faces
+and fixed-temperature or insulated edges. Materials also work with the
+[flux and convection boundaries](plate_boundaries.md).
+`PlateResult` retains the same temperatures and signed outward lateral powers.
 No material database or inferred material properties are used.
 
 ## Face resistance

@@ -49,10 +49,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: derive resistance-consistent face conductances and verify the
   two-material 1D flux and interface temperature for unequal cell widths.
   Completion date: 2026-09-26. Evidence: docs/devlog/day11.md.
-- [ ] D12 | boundaries | Flux, edge convection, and face convection.
+- [x] D12 | boundaries | Flux, edge convection, and face convection.
   Acceptance: use edge areas scaled by thickness, define face coefficient
   convention, and verify sign/zero-coefficient/large-coefficient limits.
-  Completion date: pending. Evidence: docs/devlog/day12.md.
+  Completion date: 2026-09-27. Evidence: docs/devlog/day12.md.
 - [ ] D13 | sources | Rectangular heater mapping.
   Acceptance: integrate cell/heater overlaps so total prescribed power is
   preserved across nonaligned footprints and at least three grids.

@@ -1,5 +1,6 @@
 """Small, verified thermal engineering models in SI units."""
 
+from thermalpath.boundaries import Convection
 from thermalpath.diagnostics import HeatBalance, check_connectivity, heat_balance
 from thermalpath.grid import RectangularGrid
 from thermalpath.io import dumps_case, loads_case
@@ -15,6 +16,7 @@ from thermalpath.transient_energy import (
 from thermalpath.transient_networks import TransientResult, solve_transient
 
 __all__ = [
+    "Convection",
     "HeatBalance",
     "Link",
     "Network",

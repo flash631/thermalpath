@@ -103,3 +103,11 @@ include examples/layered_plate.py
 include docs/plate_materials.md
 include docs/decisions/0011-piecewise-conductivity.md
 include docs/devlog/day11.md
+include src/thermalpath/boundaries.py
+include tests/unit/test_plate_boundaries.py
+include tests/verification/test_plate_boundary_reference.py
+include tests/integration/test_plate_boundaries_example.py
+include examples/plate_boundaries.py
+include docs/plate_boundaries.md
+include docs/decisions/0012-plate-boundaries.md
+include docs/devlog/day12.md

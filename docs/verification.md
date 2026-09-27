@@ -287,3 +287,17 @@ Resistance-factor overflow, underflow and sum overflow remain explicit errors,
 as do final conductance range failures. The documented temperature and power
 allowances depend on each fixture's conductances. These checks establish
 neither arbitrary-input error bounds nor physical validation.
+
+## D12 boundary references
+
+The [boundary derivation](plate_boundaries.md) eliminates the edge surface
+temperature to combine conduction and film resistance. A separate continuum
+flux/film strip checks both axes, both flow directions, reversed boundary
+locations and thickness scaling. Two material layers between two films check
+the series resistance and interface temperature. An exact rational mixed
+two-cell case checks each lateral and broad-face power independently.
+One-cell references distinguish projected broad area from lateral area and
+check the combined coefficient convention. Zero, small and large coefficients,
+invalid/conflicting data, missing anchors and arithmetic range failures are
+tested. The small-fixture tolerances and rounding limitations are documented;
+these checks do not establish physical validity or general mesh convergence.

@@ -14,8 +14,10 @@ conservation from temporal error; see [transient verification](docs/transient_en
 Rectangular grid geometry provides cell centers, areas, volumes and neighbors;
 see [the geometry API](docs/grid.md).
 A source-free plate solver supports uniform or cellwise isotropic conductivity,
-fixed-temperature and insulated edges; see [the plate API](docs/plate.md) and
-[piecewise materials](docs/plate_materials.md). Heater loads,
+fixed-temperature, insulated, prescribed-flux and convective edges, plus
+combined broad-face convection; see [the plate API](docs/plate.md),
+[piecewise materials](docs/plate_materials.md) and
+[boundary conventions](docs/plate_boundaries.md). Heater loads,
 design studies, reports and a small Streamlit interface remain planned
 in [ROADMAP.md](ROADMAP.md).
 

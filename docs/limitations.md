@@ -83,3 +83,13 @@ accuracy. Resistance factors and their sum must remain positive and finite;
 an arithmetic-range rejection need not mean the physical problem is invalid.
 The two-layer references verify flux and interface temperature, not general
 mesh convergence or physical validity. See [material limits](plate_materials.md).
+
+D12 adds constant prescribed flux and edge/broad-face convection. Edge films
+include the half-cell conduction resistance. The combined broad-face coefficient
+uses projected area and assumes uniform temperature through the thickness;
+that assumption needs separate assessment for physical use, especially at
+large coefficients. Pure-flux cases lack an absolute-temperature anchor and
+are rejected. Extreme coefficients may lose recovered-power accuracy even
+when temperatures approach the expected limit. Tiny flux can remain unresolved
+after temperature rounding. No general mesh order or physical validation is
+claimed. See [boundary limits](plate_boundaries.md#numerical-budgets-and-limits).

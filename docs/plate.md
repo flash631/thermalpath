@@ -3,9 +3,11 @@
 `solve_plate` solves a source-free plate with isotropic conductivity
 and uniform thickness on a `RectangularGrid`. A scalar conductivity is uniform;
 a flat sequence assigns one value per cell. See [piecewise materials](plate_materials.md)
-for the interface derivation and references. Each lateral edge is either a
-fixed positive temperature in kelvin or insulated. Both broad faces are
-insulated. The temperature is assumed uniform through the thickness. Inputs
+for the interface derivation and references. Lateral edges support fixed
+positive temperatures, insulation, prescribed flux and convection. Optional
+broad-face convection uses a combined coefficient; see [boundary conventions](plate_boundaries.md).
+The derivations below cover fixed/insulated edges with insulated broad faces.
+The temperature is assumed uniform through the thickness. Inputs
 are synthetic unless separate measurement provenance is supplied.
 
 ```python
@@ -19,7 +21,8 @@ assert abs(result.face_powers_w[0][0] - 1) < 5e-11
 
 The conductivity is in W/(m K), coordinates and thickness are in metres.
 Omitted `west_k`, `east_k`, `south_k` or `north_k` values default to `None`,
-which means zero outward heat flow. At least one edge must have a prescribed
+which means zero outward heat flow unless flux or convection is supplied there.
+At least one fixed edge or positive convection coefficient must anchor the
 temperature. An entirely insulated source-free plate has an arbitrary constant
 temperature, so this solver rejects it as nonunique.
 
@@ -107,8 +110,8 @@ cell balances in rational arithmetic and check all sixteen signed powers.
 The implementation converts the cell connections to the existing dense steady
 network solver. For N cells, matrix storage is O(N squared) and the direct
 solve costs O(N cubed) operations. Use small grids. Cellwise material
-conductivity is supported; no sparse solve, heater mapping, flux/convection
-boundary or transient plate API is provided yet.
+conductivity and flux/convection boundaries are supported; no sparse solve,
+heater mapping or transient plate API is provided yet.
 
 The small references use `2e-12 K` absolute temperature tolerance and `5e-11 W`
 absolute face-power tolerance, with zero relative tolerance. At 340 K the
