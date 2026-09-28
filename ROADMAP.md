@@ -53,10 +53,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: use edge areas scaled by thickness, define face coefficient
   convention, and verify sign/zero-coefficient/large-coefficient limits.
   Completion date: 2026-09-27. Evidence: docs/devlog/day12.md.
-- [ ] D13 | sources | Rectangular heater mapping.
+- [x] D13 | sources | Rectangular heater mapping.
   Acceptance: integrate cell/heater overlaps so total prescribed power is
   preserved across nonaligned footprints and at least three grids.
-  Completion date: pending. Evidence: docs/devlog/day13.md.
+  Completion date: 2026-09-28. Evidence: docs/devlog/day13.md.
 - [ ] D14 | diagnostics | Plate balance, residual, and singularity checks.
   Acceptance: report physical power balance separately from linear residual;
   detect unanchored zero-loss cases and reject incompatible net heating.

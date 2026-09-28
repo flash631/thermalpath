@@ -93,3 +93,12 @@ are rejected. Extreme coefficients may lose recovered-power accuracy even
 when temperatures approach the expected limit. Tiny flux can remain unresolved
 after temperature rounding. No general mesh order or physical validation is
 claimed. See [boundary limits](plate_boundaries.md#numerical-budgets-and-limits).
+
+D13 adds prescribed uniform rectangular heaters fully contained in the plate.
+Their nonnegative total powers are integrated over cell overlaps, with no
+contact or through-thickness model and no electrical feedback. A partial-cell
+source is represented by its average cell input; preserving watts across grids
+does not establish temperature convergence. Tiny mapped input can produce a
+rounded-away temperature rise and unresolved balance. Outside footprints,
+zero-area geometry, lost positive contributions and overflowing cell sums
+are rejected. See [heater limits](sources.md#limits).

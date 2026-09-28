@@ -1,12 +1,13 @@
 # Steady finite-volume plate
 
-`solve_plate` solves a source-free plate with isotropic conductivity
+`solve_plate` solves a steady plate with isotropic conductivity
 and uniform thickness on a `RectangularGrid`. A scalar conductivity is uniform;
 a flat sequence assigns one value per cell. See [piecewise materials](plate_materials.md)
 for the interface derivation and references. Lateral edges support fixed
 positive temperatures, insulation, prescribed flux and convection. Optional
 broad-face convection uses a combined coefficient; see [boundary conventions](plate_boundaries.md).
-The derivations below cover fixed/insulated edges with insulated broad faces.
+Optional [rectangular heaters](sources.md) prescribe integrated cell inputs.
+The derivations below cover source-free fixed/insulated edges with insulated broad faces.
 The temperature is assumed uniform through the thickness. Inputs
 are synthetic unless separate measurement provenance is supplied.
 

@@ -1,4 +1,4 @@
-"""Source-free finite-volume plates with cellwise isotropic conductivity."""
+"""Finite-volume plates with cellwise conductivity and prescribed heaters."""
 
 import math
 from collections.abc import Mapping, Sequence
@@ -8,6 +8,7 @@ from thermalpath.boundaries import Convection
 from thermalpath.grid import RectangularGrid
 from thermalpath.models import Link, Network, Node, _scalar
 from thermalpath.networks import solve_steady
+from thermalpath.sources import RectangularHeater, map_heaters
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,7 @@ def solve_plate(
     edge_flux_w_m2: Mapping[str, float] | None = None,
     edge_convection: Mapping[str, Convection] | None = None,
     face_convection: Convection | None = None,
+    heaters: Sequence[RectangularHeater] = (),
 ) -> PlateResult:
     """Solve a small steady plate with prescribed or convective boundaries.
 
@@ -69,6 +71,9 @@ def solve_plate(
         Combined broad-face coefficient times projected cell area. The
         coefficient is the sum for both faces, with a shared ambient and no
         extra factor of two. Temperature is uniform through the thickness.
+    heaters : sequence of RectangularHeater, optional
+        Uniform nonnegative heat inputs integrated over cell/footprint overlaps.
+        Every footprint must lie fully inside the plate; overlapping inputs add.
 
     Returns
     -------
@@ -84,19 +89,21 @@ def solve_plate(
 
     Notes
     -----
-    Solves sum_lateral Q_out + Q_broad_out = 0. Internal conductance is
+    Solves sum_lateral Q_out + Q_broad_out = mapped_heater_power. Conductance is
     A / (d_cell/k_cell + d_other/k_other), using the two half widths.
     A includes thickness. A fixed boundary uses G = k_cell*A/d_cell,
     with the cell half width, not the full width. Edge convection uses
     G = A/(d_cell/k_cell + 1/h). Broad-face exchange uses G = h_sum*dx*dy,
-    without a through-thickness resistance. There is no volume generation
-    or storage. See docs/plate_boundaries.md for conventions and limits.
+    without a through-thickness resistance. Heater watts have no extra
+    thickness factor. There is no storage. See docs/sources.md and
+    docs/plate_boundaries.md for conventions and limits.
     Reuses the dense network solver: memory grows quadratically with cell
     count. Intended for small grids. Finite results do not certify accuracy,
     mesh convergence or physical validity. See docs/plate.md.
     """
     if not isinstance(grid, RectangularGrid):
         raise ValueError("grid must be a RectangularGrid")
+    heater_powers = map_heaters(grid, heaters)
     if isinstance(conductivity_w_m_k, Sequence) and not isinstance(
         conductivity_w_m_k, (str, bytes)
     ):
@@ -220,9 +227,9 @@ def solve_plate(
             faces.append((link_id, cell, side, neighbor))
 
         try:
-            load = math.fsum(-power for power in powers[cell])
+            load = math.fsum([heater_powers[cell], *(-power for power in powers[cell])])
         except OverflowError as exc:
-            raise ValueError("summed flux power must be finite") from exc
+            raise ValueError("summed flux and heater power must be finite") from exc
         nodes.append(Node(str(cell), power_w=load))
         if face_convection is not None and face_convection.coefficient_w_m2_k > 0:
             conductance = _scalar(

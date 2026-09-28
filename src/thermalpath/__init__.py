@@ -8,6 +8,7 @@ from thermalpath.models import Link, Network, Node
 from thermalpath.networks import SteadyResult, solve_steady
 from thermalpath.plate import PlateResult, solve_plate
 from thermalpath.resistance import conduction_resistance, series_temperature
+from thermalpath.sources import RectangularHeater, map_heaters
 from thermalpath.transient import RCResult, rc_step
 from thermalpath.transient_energy import (
     TransientEnergyBalance,
@@ -24,6 +25,7 @@ __all__ = [
     "PlateResult",
     "RCResult",
     "RectangularGrid",
+    "RectangularHeater",
     "SteadyResult",
     "TransientEnergyBalance",
     "TransientResult",
@@ -32,6 +34,7 @@ __all__ = [
     "dumps_case",
     "heat_balance",
     "loads_case",
+    "map_heaters",
     "rc_step",
     "series_temperature",
     "solve_plate",

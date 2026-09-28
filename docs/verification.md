@@ -301,3 +301,17 @@ check the combined coefficient convention. Zero, small and large coefficients,
 invalid/conflicting data, missing anchors and arithmetic range failures are
 tested. The small-fixture tolerances and rounding limitations are documented;
 these checks do not establish physical validity or general mesh convergence.
+
+## D13 heater references
+
+The [overlap derivation](sources.md) integrates uniform rectangular heater
+inputs without changing their footprint or prescribing a mesh-dependent total.
+Separate rational width/height tables verify every cell and the 12 W total on
+4-, 9- and 20-cell nonaligned grids. Tests cover overlapping heaters, coordinate
+translation, length/thickness scaling, coincident edges and zero input.
+An independent two-cell matrix gives 301 K and 302 K for 4 W and 8 W cell loads;
+transposed and power-scaled versions test assembly and signs. A separate
+one-cell case checks combined heater, edge flux and broad convection.
+Arithmetic range errors are rejected, and a mapped 1e-20 W input with a
+rounded-away temperature response remains documented. Power conservation
+does not establish continuum temperature accuracy or physical validation.
