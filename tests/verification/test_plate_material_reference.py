@@ -149,6 +149,19 @@ def test_independent_heterogeneous_2d_matrix():
                     result.face_powers_w[cell][side]
                     == -result.face_powers_w[neighbor][side ^ 1]
                 )
+    expected_edges = (
+        powers[0][0] + powers[2][0],
+        powers[1][1] + powers[3][1],
+        powers[0][2] + powers[1][2],
+        powers[2][3] + powers[3][3],
+    )
+    assert sum(expected_edges) == 0
+    assert result.balance.edge_outflow_w == pytest.approx(
+        tuple(map(float, expected_edges)), rel=0, abs=4e-10
+    )
+    assert result.balance.cell_residual_w == pytest.approx((0,) * 4, rel=0, abs=3e-10)
+    assert result.balance.linear_residual_w == pytest.approx((0,) * 4, rel=0, abs=3e-10)
+    assert abs(result.balance.imbalance_w) < 1.2e-9
 
 
 @pytest.mark.parametrize("k_scale,thickness_scale", [(3, 1), (1, 4), (3, 4)])

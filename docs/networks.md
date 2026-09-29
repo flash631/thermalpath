@@ -22,6 +22,12 @@ copies that the caller may edit. Positive link power goes from `node_a` to
 heat extraction. A fixed node represents a reservoir whose temperature is imposed.
 Its input load must be zero; that does not mean its reservoir exchanges zero heat.
 
+`result.linear_residual_w` reports `b - A @ T` in watts for unknown nodes,
+using the actual assembled binary64 system. Fixed-only networks return an
+empty dictionary. A zero value can coexist with unresolved physical heating
+when right-hand-side addition loses a small load. Use `heat_balance` for
+separate physical accounting; see [residual distinctions](plate_diagnostics.md).
+
 ## Equations and uniqueness
 
 For every unknown node i, outgoing heat equals the applied load:

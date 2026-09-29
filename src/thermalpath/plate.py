@@ -8,6 +8,7 @@ from thermalpath.boundaries import Convection
 from thermalpath.grid import RectangularGrid
 from thermalpath.models import Link, Network, Node, _scalar
 from thermalpath.networks import solve_steady
+from thermalpath.plate_diagnostics import PlateBalance, _plate_balance
 from thermalpath.sources import RectangularHeater, map_heaters
 
 
@@ -26,11 +27,15 @@ class PlateResult:
     broad_face_powers_w : tuple of float
         Combined outward power [W] through both broad faces, one value per
         cell. Solver results contain zeros when broad faces are insulated.
+    balance : PlateBalance or None
+        Physical balances and separate assembled-system residuals. Always
+        populated by solve_plate; None for older manually constructed results.
     """
 
     temperatures_k: tuple[float, ...]
     face_powers_w: tuple[tuple[float, ...], ...]
     broad_face_powers_w: tuple[float, ...] = ()
+    balance: PlateBalance | None = None
 
 
 def solve_plate(
@@ -78,7 +83,8 @@ def solve_plate(
     Returns
     -------
     PlateResult
-        Cell temperatures, lateral powers and combined broad-face powers.
+        Cell temperatures, lateral/broad powers and separate physical/linear
+        balance diagnostics. No automatic residual acceptance threshold.
 
     Raises
     ------
@@ -140,10 +146,7 @@ def solve_plate(
         nodes.append(
             Node("broad", fixed_temperature_k=face_convection.ambient_temperature_k)
         )
-    if not nodes:
-        raise ValueError(
-            "at least one fixed-temperature or positive-convection anchor is required"
-        )
+    anchored = bool(nodes)
 
     widths = tuple(
         b - a for a, b in zip(grid.x_edges_m[:-1], grid.x_edges_m[1:], strict=True)
@@ -241,6 +244,25 @@ def solve_plate(
             links.append(Link(link_id, str(cell), "broad", conductance))
             broad_links.append((link_id, cell))
 
+    if not anchored:
+        try:
+            net_input = math.fsum(
+                [*heater_powers, *(-q for cell_powers in powers for q in cell_powers)]
+            )
+        except OverflowError as exc:
+            raise ValueError(
+                "net prescribed plate power is outside float range"
+            ) from exc
+        if net_input != 0:
+            raise ValueError(
+                f"unanchored plate has incompatible net input {net_input!r} W; "
+                "no steady solution exists without a temperature anchor "
+                "or balanced load"
+            )
+        raise ValueError(
+            "at least one fixed-temperature or positive-convection anchor is required; "
+            "balanced unanchored plate has nonunique absolute temperature"
+        )
     result = solve_steady(Network(tuple(nodes), tuple(links)))
     for link_id, cell, side, neighbor in faces:
         power = result.link_powers_w[link_id]
@@ -254,6 +276,15 @@ def solve_plate(
         tuple(result.temperatures_k[str(cell)] for cell in range(grid.cell_count)),
         tuple(tuple(cell_powers) for cell_powers in powers),
         tuple(broad_powers),
+        _plate_balance(
+            grid,
+            heater_powers,
+            powers,
+            broad_powers,
+            tuple(
+                result.linear_residual_w[str(cell)] for cell in range(grid.cell_count)
+            ),
+        ),
     )
 
 

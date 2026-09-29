@@ -57,10 +57,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: integrate cell/heater overlaps so total prescribed power is
   preserved across nonaligned footprints and at least three grids.
   Completion date: 2026-09-28. Evidence: docs/devlog/day13.md.
-- [ ] D14 | diagnostics | Plate balance, residual, and singularity checks.
+- [x] D14 | diagnostics | Plate balance, residual, and singularity checks.
   Acceptance: report physical power balance separately from linear residual;
   detect unanchored zero-loss cases and reject incompatible net heating.
-  Completion date: pending. Evidence: docs/devlog/day14.md.
+  Completion date: 2026-09-29. Evidence: docs/devlog/day14.md.
 - [ ] D15 | verification | Analytical 1D limiting plate cases.
   Acceptance: independently derive profiles/fluxes for declared boundaries,
   compare cell-location values, and justify discretization/roundoff tolerances.

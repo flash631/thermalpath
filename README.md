@@ -18,7 +18,9 @@ fixed-temperature, insulated, prescribed-flux and convective edges, plus
 combined broad-face convection; see [the plate API](docs/plate.md),
 [piecewise materials](docs/plate_materials.md) and
 [boundary conventions](docs/plate_boundaries.md). Rectangular heater inputs
-use [cell overlap integration](docs/sources.md). Design studies, reports
+use [cell overlap integration](docs/sources.md). Each solved plate reports
+[physical power balance and separate matrix residuals](docs/plate_diagnostics.md).
+Design studies, reports
 and a small Streamlit interface remain planned
 in [ROADMAP.md](ROADMAP.md).
 

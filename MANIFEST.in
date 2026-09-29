@@ -119,3 +119,11 @@ include examples/rectangular_heaters.py
 include docs/sources.md
 include docs/decisions/0013-rectangular-heaters.md
 include docs/devlog/day13.md
+include src/thermalpath/plate_diagnostics.py
+include tests/unit/test_plate_diagnostics.py
+include tests/verification/test_plate_balance_reference.py
+include tests/integration/test_plate_balance_example.py
+include examples/plate_balance.py
+include docs/plate_diagnostics.md
+include docs/decisions/0014-plate-diagnostics.md
+include docs/devlog/day14.md

@@ -102,3 +102,11 @@ does not establish temperature convergence. Tiny mapped input can produce a
 rounded-away temperature rise and unresolved balance. Outside footprints,
 zero-area geometry, lost positive contributions and overflowing cell sums
 are rejected. See [heater limits](sources.md#limits).
+
+D14 reports physical cell/global balance separately from the rounded linear
+residual. Neither supplies a general error certificate or a residual acceptance
+threshold. Local errors can cancel globally, and a zero matrix residual can
+hide physical input lost during assembly. Unanchored balanced plates remain
+nonunique; unbalanced plates have no steady solution. The compatibility check
+uses represented mapped/face powers, including their earlier rounding.
+See [diagnostic limits](plate_diagnostics.md#verification-and-limits).

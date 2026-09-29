@@ -1,7 +1,7 @@
 """Dense steady solutions for small constant-conductance thermal networks."""
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -19,6 +19,9 @@ class SteadyResult:
         All node temperatures, in input node order.
     link_powers_w : dict of str to float
         All link powers, in input link order; positive from node_a to node_b.
+    linear_residual_w : dict of str to float
+        Rounded b - A*T [W] for unknown nodes, using the actual assembled
+        binary64 matrix and right-hand side. Separate from physical heat balance.
 
     Notes
     -----
@@ -28,6 +31,7 @@ class SteadyResult:
 
     temperatures_k: dict[str, float]
     link_powers_w: dict[str, float]
+    linear_residual_w: dict[str, float] = field(default_factory=dict)
 
 
 def solve_steady(network: Network) -> SteadyResult:
@@ -69,6 +73,7 @@ def solve_steady(network: Network) -> SteadyResult:
     }
     unknown = [node for node in network.nodes if node.fixed_temperature_k is None]
     indices = {node.id: i for i, node in enumerate(unknown)}
+    residuals = {}
     if unknown:
         matrix = np.zeros((len(unknown), len(unknown)), dtype=float)
         rhs = np.array([node.power_w for node in unknown], dtype=float)
@@ -95,6 +100,11 @@ def solve_steady(network: Network) -> SteadyResult:
             ) from exc
         if not np.all(np.isfinite(solution)) or np.any(solution <= 0):
             raise ValueError("calculated temperatures must be finite and positive")
+        with np.errstate(over="ignore", invalid="ignore"):
+            residual = rhs - matrix @ solution
+        if not np.all(np.isfinite(residual)):
+            raise ValueError("linear residual is outside float range")
+        residuals = {node.id: float(residual[i]) for i, node in enumerate(unknown)}
         temperatures.update(
             (node.id, float(solution[i])) for i, node in enumerate(unknown)
         )
@@ -107,5 +117,5 @@ def solve_steady(network: Network) -> SteadyResult:
             raise ValueError("calculated link power is outside float range")
         powers[link.id] = power
     return SteadyResult(
-        {node.id: temperatures[node.id] for node in network.nodes}, powers
+        {node.id: temperatures[node.id] for node in network.nodes}, powers, residuals
     )

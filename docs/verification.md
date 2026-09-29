@@ -315,3 +315,15 @@ one-cell case checks combined heater, edge flux and broad convection.
 Arithmetic range errors are rejected, and a mapped 1e-20 W input with a
 rounded-away temperature response remains documented. Power conservation
 does not establish continuum temperature accuracy or physical validation.
+
+## D14 plate diagnostics
+
+The [plate balance derivation](plate_diagnostics.md) separates recovered-power
+residuals from the actual assembled `b-A*T`. An independent two-cell system
+checks both axes and three power scales. Injected temperature errors produce
+opposite 12 W cell residuals despite zero global imbalance. Mixed heater,
+prescribed flux and broad convection verify input/outflow signs. Tiny heater
+and boundary rounding cases retain nonzero physical imbalance with zero matrix
+residual. Direct summation retains a 1 W remainder hidden by rounded subtotals.
+Balanced zero-loss plates are nonunique; nonzero net prescribed input is
+incompatible. Weak anchors and arithmetic range errors remain explicit.
