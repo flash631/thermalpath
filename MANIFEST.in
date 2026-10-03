@@ -127,3 +127,9 @@ include examples/plate_balance.py
 include docs/plate_diagnostics.md
 include docs/decisions/0014-plate-diagnostics.md
 include docs/devlog/day14.md
+include tests/verification/test_plate_1d_reference.py
+include tests/integration/test_plate_1d_example.py
+include examples/plate_1d.py
+include docs/plate_1d.md
+include docs/decisions/0015-plate-1d-verification.md
+include docs/devlog/day15.md

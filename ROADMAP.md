@@ -61,10 +61,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: report physical power balance separately from linear residual;
   detect unanchored zero-loss cases and reject incompatible net heating.
   Completion date: 2026-09-29. Evidence: docs/devlog/day14.md.
-- [ ] D15 | verification | Analytical 1D limiting plate cases.
+- [x] D15 | verification | Analytical 1D limiting plate cases.
   Acceptance: independently derive profiles/fluxes for declared boundaries,
   compare cell-location values, and justify discretization/roundoff tolerances.
-  Completion date: pending. Evidence: docs/devlog/day15.md.
+  Completion date: 2026-10-03. Evidence: docs/devlog/day15.md.
 - [ ] D16 | verification | Manufactured 2D solution.
   Acceptance: derive forcing and boundary data independently from a smooth
   chosen temperature field; verify dimensions, derivatives, and corner handling.

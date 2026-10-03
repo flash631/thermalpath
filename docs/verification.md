@@ -327,3 +327,16 @@ and boundary rounding cases retain nonzero physical imbalance with zero matrix
 residual. Direct summation retains a 1 W remainder hidden by rounded subtotals.
 Balanced zero-loss plates are nonunique; nonzero net prescribed input is
 incompatible. Weak anchors and arithmetic range errors remain explicit.
+
+## D15 one-dimensional continuum references
+
+The [integrated plate profiles](plate_1d.md) cover full-area uniform heating
+with fixed/fixed, insulated/fixed and prescribed-flux/film boundaries.
+Exact rational substitution establishes both the linear face flux and the
+quadratic centre-temperature offset on unequal cells. Tests cover both axes,
+two thicknesses, three axial grids, unequal transverse strips and zero heating.
+An independent two-cell rational system gives 303/309 K with 12 W lost at
+each end. Its continuum errors are 0.375/3.375 K despite exact power balance.
+The runnable example retains this difference. Roundoff budgets are separate
+from the analytical discretization offsets; no general two-dimensional
+convergence or physical validation is claimed.

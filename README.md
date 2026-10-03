@@ -178,6 +178,9 @@ perfect contact at aligned material faces, prescribed edge temperatures,
 flux or convection, and rectangular heater inputs. Heater footprints are
 integrated over cell overlaps to preserve their prescribed power; see
 [heater mapping](docs/sources.md) and `examples/rectangular_heaters.py`.
+The [one-dimensional verification cases](docs/plate_1d.md) compare temperatures
+and signed heat flows with analytical profiles. Run `python examples/plate_1d.py`
+to see why an exact heat balance can coexist with a continuum temperature error.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
