@@ -65,10 +65,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: independently derive profiles/fluxes for declared boundaries,
   compare cell-location values, and justify discretization/roundoff tolerances.
   Completion date: 2026-10-03. Evidence: docs/devlog/day15.md.
-- [ ] D16 | verification | Manufactured 2D solution.
+- [x] D16 | verification | Manufactured 2D solution.
   Acceptance: derive forcing and boundary data independently from a smooth
   chosen temperature field; verify dimensions, derivatives, and corner handling.
-  Completion date: pending. Evidence: docs/devlog/day16.md.
+  Completion date: 2026-10-05. Evidence: docs/devlog/day16.md.
 - [ ] D17 | verification | Three-grid spatial refinement report.
   Acceptance: use one frozen smooth benchmark/grid family, report norm errors,
   observed order and conservation; preserve unexpected order as unresolved.

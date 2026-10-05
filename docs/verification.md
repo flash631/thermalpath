@@ -340,3 +340,15 @@ each end. Its continuum errors are 0.375/3.375 K despite exact power balance.
 The runnable example retains this difference. Roundoff budgets are separate
 from the analytical discretization offsets; no general two-dimensional
 convergence or physical validation is claimed.
+
+## D16 manufactured two-dimensional reference
+
+The [polynomial benchmark](manufactured_plate.md) derives forcing and fixed
+edge data from one smooth two-dimensional temperature field. Independent
+rational polynomial calculus checks derivatives, corner compatibility,
+cell-integrated input and signed continuum flux balance. A separate 12-cell
+rational matrix and inverse verify the fixed 4 by 3 discrete solve, including
+each corner cell's two exterior faces. The runnable report preserves a
+1.34499 K maximum centre-temperature error and a different edge-power
+partition despite global balance near roundoff. This is a one-grid numerical
+verification; D17 owns the three-grid spatial-order study.

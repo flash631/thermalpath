@@ -181,6 +181,9 @@ integrated over cell overlaps to preserve their prescribed power; see
 The [one-dimensional verification cases](docs/plate_1d.md) compare temperatures
 and signed heat flows with analytical profiles. Run `python examples/plate_1d.py`
 to see why an exact heat balance can coexist with a continuum temperature error.
+The [manufactured two-dimensional benchmark](docs/manufactured_plate.md)
+derives smooth forcing and compatible edge data from a chosen polynomial
+field. Run `python examples/manufactured_plate.py` for its fixed-grid comparison.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
