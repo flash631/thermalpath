@@ -352,3 +352,14 @@ each corner cell's two exterior faces. The runnable report preserves a
 1.34499 K maximum centre-temperature error and a different edge-power
 partition despite global balance near roundoff. This is a one-grid numerical
 verification; D17 owns the three-grid spatial-order study.
+
+## D17 spatial refinement
+
+The [three-grid report](plate_refinement.md) uses the frozen D16 field and
+4 by 3, 8 by 6, 16 by 12 grids with freshly integrated loads. A separate
+sine-mode solution verifies every cell and reproduces the observed norm
+errors. Exact rational row substitution checks the boundary error equation
+and comparison bounds. Mean/RMS orders approach two, while maximum-norm
+orders remain 1.60020 and 1.82593. Both rates and the small physical/linear
+residuals are retained. The standalone JSON includes every cell for replay;
+this bounded numerical study does not establish physical validation.

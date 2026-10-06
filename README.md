@@ -184,6 +184,9 @@ to see why an exact heat balance can coexist with a continuum temperature error.
 The [manufactured two-dimensional benchmark](docs/manufactured_plate.md)
 derives smooth forcing and compatible edge data from a chosen polynomial
 field. Run `python examples/manufactured_plate.py` for its fixed-grid comparison.
+The [three-grid refinement report](docs/plate_refinement.md) gives temperature
+error norms, both observed orders and conservation for that frozen benchmark.
+Run `python examples/plate_refinement.py` to reproduce every cell and summary.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish

@@ -69,10 +69,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: derive forcing and boundary data independently from a smooth
   chosen temperature field; verify dimensions, derivatives, and corner handling.
   Completion date: 2026-10-05. Evidence: docs/devlog/day16.md.
-- [ ] D17 | verification | Three-grid spatial refinement report.
+- [x] D17 | verification | Three-grid spatial refinement report.
   Acceptance: use one frozen smooth benchmark/grid family, report norm errors,
   observed order and conservation; preserve unexpected order as unresolved.
-  Completion date: pending. Evidence: docs/devlog/day17.md.
+  Completion date: 2026-10-06. Evidence: docs/devlog/day17.md.
 - [ ] D18 | plotting | Temperature, transient, and error plots.
   Acceptance: units and readable labels, correct geometry aspect ratio, shared
   comparison scales, deterministic headless export, no fabricated result images.

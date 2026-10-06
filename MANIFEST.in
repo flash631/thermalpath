@@ -139,3 +139,9 @@ include tests/integration/test_manufactured_plate_example.py
 include docs/manufactured_plate.md
 include docs/decisions/0016-manufactured-plate.md
 include docs/devlog/day16.md
+include examples/plate_refinement.py
+include tests/verification/test_plate_refinement_reference.py
+include tests/integration/test_plate_refinement_example.py
+include docs/plate_refinement.md
+include docs/decisions/0017-spatial-refinement.md
+include docs/devlog/day17.md
