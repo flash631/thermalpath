@@ -145,3 +145,10 @@ include tests/integration/test_plate_refinement_example.py
 include docs/plate_refinement.md
 include docs/decisions/0017-spatial-refinement.md
 include docs/devlog/day17.md
+include src/thermalpath/plotting.py
+include tests/unit/test_plotting.py
+include tests/integration/test_thermal_plots_example.py
+include examples/thermal_plots.py
+include docs/plotting.md
+include docs/decisions/0018-thermal-plots.md
+include docs/devlog/day18.md

@@ -187,6 +187,10 @@ field. Run `python examples/manufactured_plate.py` for its fixed-grid comparison
 The [three-grid refinement report](docs/plate_refinement.md) gives temperature
 error norms, both observed orders and conservation for that frozen benchmark.
 Run `python examples/plate_refinement.py` to reproduce every cell and summary.
+The [plotting helpers](docs/plotting.md) export temperature maps, transient
+histories and spatial error curves with SI labels and common comparison scales.
+Run `python examples/thermal_plots.py thermal-plots` with a new output directory
+to generate three figures, their numerical inputs and content hashes.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish

@@ -73,10 +73,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: use one frozen smooth benchmark/grid family, report norm errors,
   observed order and conservation; preserve unexpected order as unresolved.
   Completion date: 2026-10-06. Evidence: docs/devlog/day17.md.
-- [ ] D18 | plotting | Temperature, transient, and error plots.
+- [x] D18 | plotting | Temperature, transient, and error plots.
   Acceptance: units and readable labels, correct geometry aspect ratio, shared
   comparison scales, deterministic headless export, no fabricated result images.
-  Completion date: pending. Evidence: docs/devlog/day18.md.
+  Completion date: 2026-10-07. Evidence: docs/devlog/day18.md.
 - [ ] D19 | studies | Parameter sweeps and CSV export.
   Acceptance: bounded deterministic cases with complete inputs, units and
   failures preserved; test ordering and replay from the exported specification.
