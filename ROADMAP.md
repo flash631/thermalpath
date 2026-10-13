@@ -77,10 +77,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: units and readable labels, correct geometry aspect ratio, shared
   comparison scales, deterministic headless export, no fabricated result images.
   Completion date: 2026-10-07. Evidence: docs/devlog/day18.md.
-- [ ] D19 | studies | Parameter sweeps and CSV export.
+- [x] D19 | studies | Parameter sweeps and CSV export.
   Acceptance: bounded deterministic cases with complete inputs, units and
   failures preserved; test ordering and replay from the exported specification.
-  Completion date: pending. Evidence: docs/devlog/day19.md.
+  Completion date: 2026-10-13. Evidence: docs/devlog/day19.md.
 - [ ] D20 | studies | Local sensitivity calculations.
   Acceptance: compare against a known derivative and at least three perturbation
   sizes; report dimensional/scaled sensitivities with validity near constraints.

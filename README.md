@@ -191,6 +191,9 @@ The [plotting helpers](docs/plotting.md) export temperature maps, transient
 histories and spatial error curves with SI labels and common comparison scales.
 Run `python examples/thermal_plots.py thermal-plots` with a new output directory
 to generate three figures, their numerical inputs and content hashes.
+The [network sweep helpers](docs/studies.md) export bounded parameter products
+with full SI inputs, preserved failures and replay from CSV. Run
+`python examples/network_sweep.py network-sweep.csv` to generate nine cases.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish

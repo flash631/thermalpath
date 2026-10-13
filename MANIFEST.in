@@ -152,3 +152,11 @@ include examples/thermal_plots.py
 include docs/plotting.md
 include docs/decisions/0018-thermal-plots.md
 include docs/devlog/day18.md
+include src/thermalpath/studies.py
+include examples/network_sweep.py
+include tests/unit/test_studies.py
+include tests/verification/test_sweep_reference.py
+include tests/integration/test_network_sweep_example.py
+include docs/studies.md
+include docs/decisions/0019-network-sweeps.md
+include docs/devlog/day19.md

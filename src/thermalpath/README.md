@@ -8,5 +8,6 @@ diagnostics.py (D04 connectivity and signed heat accounting), and io.py/cli.py
 and grid.py (D09 rectangular cell geometry), plate.py (D10-D12 steady plates),
 boundaries.py (D12 convection inputs), sources.py (D13 rectangular heaters),
 and plate_diagnostics.py (D14 physical balance and separate matrix residuals).
-Later roadmap increments add studies.py, comparison.py,
-and plotting.py. No empty solver APIs are exposed.
+plotting.py (D18 result figures) and studies.py (D19 bounded network sweeps and
+CSV replay) are also implemented. Later roadmap increments extend studies and
+add comparison.py. No empty solver APIs are exposed.
