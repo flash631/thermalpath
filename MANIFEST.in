@@ -160,3 +160,11 @@ include tests/integration/test_network_sweep_example.py
 include docs/studies.md
 include docs/decisions/0019-network-sweeps.md
 include docs/devlog/day19.md
+include src/thermalpath/sensitivity.py
+include examples/network_sensitivity.py
+include tests/unit/test_sensitivity.py
+include tests/verification/test_sensitivity_reference.py
+include tests/integration/test_network_sensitivity_example.py
+include docs/sensitivity.md
+include docs/decisions/0020-local-sensitivity.md
+include docs/devlog/day20.md

@@ -81,10 +81,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: bounded deterministic cases with complete inputs, units and
   failures preserved; test ordering and replay from the exported specification.
   Completion date: 2026-10-13. Evidence: docs/devlog/day19.md.
-- [ ] D20 | studies | Local sensitivity calculations.
+- [x] D20 | studies | Local sensitivity calculations.
   Acceptance: compare against a known derivative and at least three perturbation
   sizes; report dimensional/scaled sensitivities with validity near constraints.
-  Completion date: pending. Evidence: docs/devlog/day20.md.
+  Completion date: 2026-10-14. Evidence: docs/devlog/day20.md.
 - [ ] D21 | uncertainty | Bounded seeded Monte Carlo inputs.
   Acceptance: validate bounds/distributions, record seed/count, reproduce samples,
   and label percentiles as conditional model outputs rather than safety bounds.

@@ -194,6 +194,9 @@ to generate three figures, their numerical inputs and content hashes.
 The [network sweep helpers](docs/studies.md) export bounded parameter products
 with full SI inputs, preserved failures and replay from CSV. Run
 `python examples/network_sweep.py network-sweep.csv` to generate nine cases.
+The [local sensitivity helper](docs/sensitivity.md) reports temperature
+derivatives across supplied perturbation sizes and retains invalid stencils.
+Run `python examples/network_sensitivity.py` for an analytical comparison.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
