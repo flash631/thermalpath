@@ -197,6 +197,10 @@ with full SI inputs, preserved failures and replay from CSV. Run
 The [local sensitivity helper](docs/sensitivity.md) reports temperature
 derivatives across supplied perturbation sizes and retains invalid stencils.
 Run `python examples/network_sensitivity.py` for an analytical comparison.
+The [bounded uncertainty helper](docs/uncertainty.md) samples independent
+uniform input ranges with explicit seeds and retains every case and failure.
+Run `python examples/network_uncertainty.py` for conditional temperature
+percentiles and a separate example with invalid sampled temperatures.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish

@@ -85,10 +85,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: compare against a known derivative and at least three perturbation
   sizes; report dimensional/scaled sensitivities with validity near constraints.
   Completion date: 2026-10-14. Evidence: docs/devlog/day20.md.
-- [ ] D21 | uncertainty | Bounded seeded Monte Carlo inputs.
+- [x] D21 | uncertainty | Bounded seeded Monte Carlo inputs.
   Acceptance: validate bounds/distributions, record seed/count, reproduce samples,
   and label percentiles as conditional model outputs rather than safety bounds.
-  Completion date: pending. Evidence: docs/devlog/day21.md.
+  Completion date: 2026-10-15. Evidence: docs/devlog/day21.md.
 - [ ] D22 | design | Candidate comparison to temperature requirements.
   Acceptance: explicit feasible alternatives, common loads/boundaries and
   requirements; preserve ties, infeasible cases and uncertainty qualifications.
