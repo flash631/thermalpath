@@ -176,3 +176,11 @@ include tests/integration/test_network_sensitivity_example.py
 include docs/sensitivity.md
 include docs/decisions/0020-local-sensitivity.md
 include docs/devlog/day20.md
+include src/thermalpath/design.py
+include examples/network_candidates.py
+include tests/unit/test_design.py
+include tests/verification/test_design_reference.py
+include tests/integration/test_network_candidates_example.py
+include docs/design.md
+include docs/decisions/0022-nominal-candidate-comparison.md
+include docs/devlog/day22.md

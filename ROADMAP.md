@@ -89,10 +89,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: validate bounds/distributions, record seed/count, reproduce samples,
   and label percentiles as conditional model outputs rather than safety bounds.
   Completion date: 2026-10-15. Evidence: docs/devlog/day21.md.
-- [ ] D22 | design | Candidate comparison to temperature requirements.
+- [x] D22 | design | Candidate comparison to temperature requirements.
   Acceptance: explicit feasible alternatives, common loads/boundaries and
   requirements; preserve ties, infeasible cases and uncertainty qualifications.
-  Completion date: pending. Evidence: docs/devlog/day22.md.
+  Completion date: 2026-10-16. Evidence: docs/devlog/day22.md.
 - [ ] D23 | comparison | Reference CSV import with provenance.
   Acceptance: require units, source/license and synthetic/experimental labels;
   reject missing or incompatible metadata and untraceable measurements.

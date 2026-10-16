@@ -201,6 +201,10 @@ The [bounded uncertainty helper](docs/uncertainty.md) samples independent
 uniform input ranges with explicit seeds and retains every case and failure.
 Run `python examples/network_uncertainty.py` for conditional temperature
 percentiles and a separate example with invalid sampled temperatures.
+The [candidate comparison helper](docs/design.md) checks named link alternatives
+under common loads, boundary temperatures and upper temperature requirements.
+Run `python examples/network_candidates.py` for retained ties, borderline
+results, unmet requirements and a failed solve, with nominal-only qualifications.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
