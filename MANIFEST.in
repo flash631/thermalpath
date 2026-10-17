@@ -184,3 +184,13 @@ include tests/integration/test_network_candidates_example.py
 include docs/design.md
 include docs/decisions/0022-nominal-candidate-comparison.md
 include docs/devlog/day22.md
+include src/thermalpath/comparison.py
+include examples/reference_import.py
+include tests/unit/test_comparison.py
+include tests/verification/test_reference_import.py
+include tests/integration/test_reference_import_example.py
+include data/reference/synthetic_temperature.csv
+include data/reference/synthetic_temperature.json
+include docs/comparison.md
+include docs/decisions/0023-reference-provenance.md
+include docs/devlog/day23.md

@@ -93,10 +93,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: explicit feasible alternatives, common loads/boundaries and
   requirements; preserve ties, infeasible cases and uncertainty qualifications.
   Completion date: 2026-10-16. Evidence: docs/devlog/day22.md.
-- [ ] D23 | comparison | Reference CSV import with provenance.
+- [x] D23 | comparison | Reference CSV import with provenance.
   Acceptance: require units, source/license and synthetic/experimental labels;
   reject missing or incompatible metadata and untraceable measurements.
-  Completion date: pending. Evidence: docs/devlog/day23.md.
+  Completion date: 2026-10-17. Evidence: docs/devlog/day23.md.
 - [ ] D24 | comparison | Residuals and RMSE.
   Acceptance: verify using independent synthetic arithmetic, document matching
   coordinates/times, signed residual convention and excluded/missing rows.

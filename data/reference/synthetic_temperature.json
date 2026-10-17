@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "synthetic",
+  "mode": "transient",
+  "source": "data/reference/README.md, synthetic_temperature recipe",
+  "license": "MIT; see LICENSE",
+  "description": "Four exact arithmetic temperature samples, including a repeated time. No measurements.",
+  "method": "T(t) = 300 K + (0.25 K/s) t at times 0, 2.5, 10, 2.5 s; decimal values are exact binary64 numbers.",
+  "locations": {
+    "body": "A prescribed scalar temperature; no physical sensor or geometry."
+  },
+  "units": {
+    "temperature": "K",
+    "time": "s"
+  },
+  "csv_sha256": "a15c46e0c9dd031b2068c7d5b69c9901fb4a7bf0284408a9ca94e2f8e10eebf6"
+}

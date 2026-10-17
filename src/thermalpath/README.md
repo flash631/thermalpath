@@ -9,5 +9,6 @@ and grid.py (D09 rectangular cell geometry), plate.py (D10-D12 steady plates),
 boundaries.py (D12 convection inputs), sources.py (D13 rectangular heaters),
 and plate_diagnostics.py (D14 physical balance and separate matrix residuals).
 plotting.py (D18 result figures) and studies.py (D19 bounded network sweeps and
-CSV replay) are also implemented. Later roadmap increments extend studies and
-add comparison.py. No empty solver APIs are exposed.
+CSV replay) are also implemented. comparison.py (D23) imports temperature
+reference CSVs with hash-bound provenance metadata. Later roadmap increments
+add reference error metrics. No empty solver APIs are exposed.

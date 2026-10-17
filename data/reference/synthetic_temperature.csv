@@ -1,0 +1,5 @@
+sample_id,location_id,time_s,temperature_k,source_record
+sample-1,body,0,300,recipe evaluation 1
+sample-2,body,2.5,300.625,recipe evaluation 2
+sample-3,body,10,302.5,recipe evaluation 3
+sample-4,body,2.5,300.625,recipe evaluation 4

@@ -205,6 +205,11 @@ The [candidate comparison helper](docs/design.md) checks named link alternatives
 under common loads, boundary temperatures and upper temperature requirements.
 Run `python examples/network_candidates.py` for retained ties, borderline
 results, unmet requirements and a failed solve, with nominal-only qualifications.
+The [reference importer](docs/comparison.md) requires declared SI units,
+source/license records and synthetic or experimental labels, with metadata
+bound to the exact CSV bytes. Run `python examples/reference_import.py` for the
+bundled synthetic arithmetic fixture. Import acceptance checks structure and
+supplied declarations; it does not authenticate measurements or validate a model.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
