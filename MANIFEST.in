@@ -194,3 +194,9 @@ include data/reference/synthetic_temperature.json
 include docs/comparison.md
 include docs/decisions/0023-reference-provenance.md
 include docs/devlog/day23.md
+include examples/reference_comparison.py
+include tests/unit/test_comparison_metrics.py
+include tests/verification/test_comparison_arithmetic.py
+include tests/integration/test_reference_comparison_example.py
+include docs/decisions/0024-exact-reference-comparison.md
+include docs/devlog/day24.md

@@ -97,10 +97,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: require units, source/license and synthetic/experimental labels;
   reject missing or incompatible metadata and untraceable measurements.
   Completion date: 2026-10-17. Evidence: docs/devlog/day23.md.
-- [ ] D24 | comparison | Residuals and RMSE.
+- [x] D24 | comparison | Residuals and RMSE.
   Acceptance: verify using independent synthetic arithmetic, document matching
   coordinates/times, signed residual convention and excluded/missing rows.
-  Completion date: pending. Evidence: docs/devlog/day24.md.
+  Completion date: 2026-10-18. Evidence: docs/devlog/day24.md.
 - [ ] D25 | case study | Electronics heat-spreader design study.
   Acceptance: freeze cases and requirements, reproduce credible predictions,
   compare feasible candidates and support a qualified engineering recommendation.

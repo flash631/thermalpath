@@ -1,4 +1,4 @@
-# Temperature reference import
+# Temperature reference import and comparison
 
 `thermalpath.comparison.loads_reference(csv_data, metadata_data)` reads two
 UTF-8 byte strings: a temperature CSV and a JSON metadata sidecar. Use
@@ -99,3 +99,103 @@ parser. An `experimental` label is the supplier's declaration, not a validation
 result. External evidence still needs source, acquisition and comparability
 review before it can support a physical claim. Constructing the output
 dataclasses directly also does not run the import checks.
+
+## Signed residuals and RMSE
+
+`compare_reference(reference, predictions, matching_note=..., exclusions=...)`
+compares an imported dataset with supplied `TemperaturePrediction` values.
+A prediction contains a location ID, elapsed time in seconds (or `None` for a
+steady value), and positive finite absolute temperature in kelvin. Supply zero
+to 10000 predictions with unique location/time pairs. A repeated prediction key
+is ambiguous and rejects the comparison, even if its temperatures agree.
+
+The matching key is exactly `(location_id, time_s)` after conversion to binary64.
+Location IDs are case sensitive. Steady rows match `(location_id, None)`; all
+transient times must be nonnegative. There is no nearest-location search,
+interpolation, extrapolation, time shift or tolerance. For example, `0.1 + 0.2`
+and `0.3` are different binary64 times and do not match. Prepare predictions at
+the imported times when that is appropriate for the model.
+
+Location descriptions may contain physical coordinates, but the function does
+not parse them. Before comparing, check coordinate frames, units, sensor extent,
+time origins, assembly, boundary conditions and the temperature quantity being
+measured or predicted. Record the correspondence in the required `matching_note`.
+If interpolation or coordinate transformations are needed, perform and document
+them separately, including the original inputs and method. A note is a caller
+declaration, not evidence that the mapping is physically valid.
+
+For each matched, nonexcluded row, the signed residual is
+
+`r_i = T_prediction,i - T_reference,i` [K].
+
+A positive residual means the prediction is hotter. With `n` matched rows,
+
+`RMSE = sqrt(sum(r_i**2) / n)` [K].
+
+This is an equal-row root mean square error. It is not a sample standard
+deviation, so the denominator is `n`, not `n - 1`. Each repeated observation
+contributes once; densely sampled locations/times therefore receive more weight.
+No uncertainty weighting or bias correction is applied. The implementation
+scales residuals by their largest magnitude before squaring and uses an accurate
+sum, avoiding intermediate square overflow and loss of uniformly tiny values.
+Binary64 rounding and loss of very small contributions relative to large ones
+remain. Identical supplied values give zero; zero does not prove model accuracy.
+
+Every reference row remains in original order with one status:
+
+| Status | Residual and denominator treatment |
+| --- | --- |
+| `matched` | Exact prediction exists; signed residual contributes once. |
+| `missing` | No exact prediction; residual is `None` and row is outside `n`. |
+| `excluded` | Sample ID has a supplied reason; residual is `None` and row is outside `n`, whether or not a prediction exists. |
+
+`exclusions` maps reference sample IDs to reasons. Unknown IDs and empty reasons
+are rejected. Choose exclusions before inspecting residuals and retain that
+decision. The function records reasons but cannot enforce when they were chosen.
+Counts for these three statuses sum to the reference row count. Always report
+all three beside RMSE: when any row is missing or excluded, the metric applies
+only to the matched subset. If `n == 0`, `rmse_k` is `None`, never zero.
+
+All predictions are retained in input order. `unused_predictions` additionally
+lists values used by no matched row, including predictions for excluded-only
+keys and locations/times absent from the reference. Excluded rows still retain
+an exact prediction when one exists. Invalid numeric values reject the complete
+call; they are not treated as missing. Relevant row domains are checked again
+for directly constructed reference records, but this does not verify hashes or
+replace the original import/provenance checks. Observations absent from the
+reference CSV cannot be counted here; keep the source's missing-data record.
+
+```python
+from pathlib import Path
+from thermalpath.comparison import (
+    TemperaturePrediction,
+    compare_reference,
+    loads_reference,
+)
+
+base = Path("data/reference/synthetic_temperature")
+reference = loads_reference(
+    base.with_suffix(".csv").read_bytes(),
+    base.with_suffix(".json").read_bytes(),
+)
+location = reference.samples[0].location_id
+result = compare_reference(
+    reference,
+    [
+        TemperaturePrediction(location, 0, 303),
+        TemperaturePrediction(location, 2.5, 296.625),
+    ],
+    matching_note="Same synthetic body, temperature quantity and elapsed-time origin.",
+    exclusions={reference.samples[3].sample_id: "Repeat omitted for this example"},
+)
+print(result.matched_count, result.missing_count, result.excluded_count)  # 2 1 1
+print(result.rmse_k)  # about 3.5355339059327378 K for residuals +3 and -4 K
+```
+
+Run `python examples/reference_comparison.py` to see every row, both source
+hashes, the correspondence note and an unused prediction. This example uses
+assigned arithmetic values and the bundled synthetic fixture. It is not a
+thermal simulation or an experimental comparison. RMSE by itself provides no
+physical-validation verdict, confidence interval, calibration, safety claim or
+acceptance threshold. The existing solver balance diagnostics remain separate
+from these temperature residuals.

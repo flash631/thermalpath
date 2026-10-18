@@ -210,6 +210,10 @@ source/license records and synthetic or experimental labels, with metadata
 bound to the exact CSV bytes. Run `python examples/reference_import.py` for the
 bundled synthetic arithmetic fixture. Import acceptance checks structure and
 supplied declarations; it does not authenticate measurements or validate a model.
+The [reference comparison](docs/comparison.md#signed-residuals-and-rmse) computes
+predicted-minus-reference residuals and equal-row RMSE at exact location/time
+matches, retaining missing rows, exclusions and unused predictions. Run
+`python examples/reference_comparison.py` for a synthetic arithmetic example.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
