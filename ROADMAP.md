@@ -101,10 +101,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: verify using independent synthetic arithmetic, document matching
   coordinates/times, signed residual convention and excluded/missing rows.
   Completion date: 2026-10-18. Evidence: docs/devlog/day24.md.
-- [ ] D25 | case study | Electronics heat-spreader design study.
+- [x] D25 | case study | Electronics heat-spreader design study.
   Acceptance: freeze cases and requirements, reproduce credible predictions,
   compare feasible candidates and support a qualified engineering recommendation.
-  Completion date: pending. Evidence: docs/devlog/day25.md.
+  Completion date: 2026-10-19. Evidence: docs/devlog/day25.md.
 - [ ] D26 | reporting | JSON and Markdown reports.
   Acceptance: include inputs/units, source revision, numerical checks, evidence
   provenance and limitations; test deterministic exports and privacy review.

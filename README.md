@@ -20,7 +20,9 @@ combined broad-face convection; see [the plate API](docs/plate.md),
 [boundary conventions](docs/plate_boundaries.md). Rectangular heater inputs
 use [cell overlap integration](docs/sources.md). Each solved plate reports
 [physical power balance and separate matrix residuals](docs/plate_diagnostics.md).
-Design studies, reports
+A synthetic [heat-spreader study](docs/case_study.md) compares three plate
+thicknesses under nominal and stress loads, with numerical checks and a
+qualified recommendation for further evaluation. Reports
 and a small Streamlit interface remain planned
 in [ROADMAP.md](ROADMAP.md).
 

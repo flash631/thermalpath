@@ -1,5 +1,10 @@
 # Explicit source distribution inventory.
 global-exclude *
+include examples/heat_spreader.py
+include tests/verification/test_heat_spreader_reference.py
+include tests/integration/test_heat_spreader_example.py
+include docs/decisions/0025-heat-spreader-study.md
+include docs/devlog/day25.md
 include src/thermalpath/uncertainty.py
 include examples/network_uncertainty.py
 include tests/unit/test_uncertainty.py
