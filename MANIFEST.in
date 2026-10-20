@@ -1,5 +1,12 @@
 # Explicit source distribution inventory.
 global-exclude *
+include src/thermalpath/reporting.py
+include examples/heat_spreader_report.py
+include tests/unit/test_reporting.py
+include tests/integration/test_heat_spreader_report.py
+include docs/reporting.md
+include docs/decisions/0026-evidence-reports.md
+include docs/devlog/day26.md
 include examples/heat_spreader.py
 include tests/verification/test_heat_spreader_reference.py
 include tests/integration/test_heat_spreader_example.py

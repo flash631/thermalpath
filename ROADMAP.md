@@ -105,10 +105,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: freeze cases and requirements, reproduce credible predictions,
   compare feasible candidates and support a qualified engineering recommendation.
   Completion date: 2026-10-19. Evidence: docs/devlog/day25.md.
-- [ ] D26 | reporting | JSON and Markdown reports.
+- [x] D26 | reporting | JSON and Markdown reports.
   Acceptance: include inputs/units, source revision, numerical checks, evidence
   provenance and limitations; test deterministic exports and privacy review.
-  Completion date: pending. Evidence: docs/devlog/day26.md.
+  Completion date: 2026-10-20. Evidence: docs/devlog/day26.md.
 - [ ] D27 | app | Small Streamlit interface.
   Acceptance: controls call the existing library, show units and limitations,
   and provide results without duplicating physics or adding cloud services.

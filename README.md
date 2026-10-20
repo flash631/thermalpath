@@ -216,6 +216,10 @@ The [reference comparison](docs/comparison.md#signed-residuals-and-rmse) compute
 predicted-minus-reference residuals and equal-row RMSE at exact location/time
 matches, retaining missing rows, exclusions and unused predictions. Run
 `python examples/reference_comparison.py` for a synthetic arithmetic example.
+The [report exporter](docs/reporting.md) preserves supplied inputs, units,
+results, numerical checks, source declarations and limitations in deterministic
+JSON and Markdown. Run `python examples/heat_spreader_report.py` for the complete
+synthetic study report. Source revision is explicit and defaults to `unknown`.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
