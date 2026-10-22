@@ -109,10 +109,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: include inputs/units, source revision, numerical checks, evidence
   provenance and limitations; test deterministic exports and privacy review.
   Completion date: 2026-10-20. Evidence: docs/devlog/day26.md.
-- [ ] D27 | app | Small Streamlit interface.
+- [x] D27 | app | Small Streamlit interface.
   Acceptance: controls call the existing library, show units and limitations,
   and provide results without duplicating physics or adding cloud services.
-  Completion date: pending. Evidence: docs/devlog/day27.md.
+  Completion date: 2026-10-22. Evidence: docs/devlog/day27.md.
 - [ ] D28 | app/tests | AppTest coverage and resource limits.
   Acceptance: exercise valid/error flows, useful input messages, bounded grid
   and sample counts, and agreement with the same direct library case.

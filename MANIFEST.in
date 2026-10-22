@@ -1,5 +1,9 @@
 # Explicit source distribution inventory.
 global-exclude *
+include app/network_app.py
+include tests/integration/test_app_network.py
+include docs/decisions/0027-local-network-worksheet.md
+include docs/devlog/day27.md
 include src/thermalpath/reporting.py
 include examples/heat_spreader_report.py
 include tests/unit/test_reporting.py

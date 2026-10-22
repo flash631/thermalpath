@@ -220,6 +220,9 @@ The [report exporter](docs/reporting.md) preserves supplied inputs, units,
 results, numerical checks, source declarations and limitations in deterministic
 JSON and Markdown. Run `python examples/heat_spreader_report.py` for the complete
 synthetic study report. Source revision is explicit and defaults to `unknown`.
+The [local worksheet](app/README.md) provides a Streamlit interface to a
+three-node steady heat path, with SI inputs, temperatures and signed heat
+accounting. It uses the existing network library.
 It does not predict
 airflow or convection coefficients, perform physical validation, or guarantee
 device safety. Finite-precision representability checks do not establish
