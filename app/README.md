@@ -38,4 +38,20 @@ heat. Results are model predictions, without physical validation or a device
 safety verdict. Read the [network assumptions](../docs/networks.md).
 
 Independent arithmetic tests cover the input mapping and solver results.
-Broader automated UI flows and resource-limit tests remain D28 work.
+The server also checks the finite inclusive control ranges before building a
+network. Submitted inputs are kept within each session, including across reruns.
+An invalid case shows an input-specific message and no result tables; submitting
+a valid replacement clears the error.
+
+The fixed workload is one three-node network solve per render: two unknown
+temperatures, two links, zero spatial grid cells and zero random samples. The
+form provides no size, grid or sample-count inputs. These structural limits do
+not promise a wall-clock timeout or bound total memory across many sessions.
+
+AppTest checks exercise submitted cases, error recovery, session separation and
+agreement with direct library calls. All 19 reference cases pass the unchanged
+2e-10 K and W absolute screens after a bounded correction in the library solver.
+The library attempts at most two linear solves per call; the app still calls it
+once per render. See the [D28 evidence](../docs/devlog/day28.md), including the
+two original failures. Passing these finite cases does not establish an error
+bound across the full control range.

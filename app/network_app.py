@@ -1,5 +1,7 @@
 """Local Streamlit worksheet for a steady heater-to-sink network."""
 
+import math
+
 import streamlit as st
 
 from thermalpath.diagnostics import heat_balance
@@ -28,7 +30,22 @@ def make_network(
     -------
     Network
         Heater, unloaded spreader and fixed sink joined in that order.
+
+    Raises
+    ------
+    ValueError
+        An input is nonfinite or outside the worksheet's inclusive range.
     """
+    for label, value, lower, upper, unit in (
+        ("Heater power", power_w, 0.0, 1000.0, "W"),
+        ("Sink temperature", sink_temperature_k, 1.0, 1000.0, "K"),
+        ("Heater to spreader conductance", contact_conductance_w_k, 0.1, 100.0, "W/K"),
+        ("Spreader to sink conductance", sink_conductance_w_k, 0.1, 100.0, "W/K"),
+    ):
+        if not math.isfinite(value) or not lower <= value <= upper:
+            raise ValueError(
+                f"{label} must be finite and between {lower:g} and {upper:g} {unit}."
+            )
     return Network(
         (
             Node("heater", power_w=power_w),
@@ -73,10 +90,19 @@ def main() -> None:
                 2.0,
                 step=0.1,
             )
-        st.form_submit_button("Calculate temperatures", type="primary")
+        submitted = st.form_submit_button("Calculate temperatures", type="primary")
+    if "submitted_inputs" not in st.session_state:
+        st.session_state["submitted_inputs"] = (10.0, 300.0, 5.0, 2.0)
+    if submitted:
+        st.session_state["submitted_inputs"] = (power, sink, contact, sink_path)
+    power, sink, contact, sink_path = st.session_state["submitted_inputs"]
     st.caption(
         "Results use the default or last submitted inputs. "
         "Press Calculate temperatures to apply edits."
+    )
+    st.caption(
+        "One case per calculation: three nodes, two links, no grid cells or random "
+        "samples. Allowed inputs: 0–1000 W, 1–1000 K, and 0.1–100 W/K."
     )
     st.subheader("Submitted case")
     st.write(

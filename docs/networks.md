@@ -71,8 +71,24 @@ The solver uses a dense binary64 matrix and
 [`numpy.linalg.solve`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.solve.html).
 NumPy documents a direct LAPACK solve for square full-rank systems. Dense storage
 grows quadratically and solve work cubically with the number of unknown nodes;
-this implementation is intended for small networks. There is no iterative or
-mesh convergence criterion for this lumped steady calculation.
+this implementation is intended for small networks.
+
+After the direct solve, one correction is attempted using the original link
+balances: `r_i = P_i - sum_j G_ij * (T_i - T_j)`. The signed terms are summed
+with `math.fsum`, without first combining conductances into a rounded diagonal.
+The same assembled matrix solves `A * delta = r`, and the candidate is
+`T + delta`. The correction has units K. It is accepted only if all candidate
+temperatures are finite and positive and the largest absolute link-balance
+residual decreases strictly. Otherwise the direct solution is kept. An
+arithmetic failure during this optional correction also keeps the direct result;
+the initial system and final temperature/power range checks still apply.
+
+This adds at most one linear solve and two link-balance evaluations, with no
+convergence loop. It can reduce errors caused by matrix assembly rounding,
+but a smaller balance residual does not establish a temperature-error bound.
+The reported `linear_residual_w` is recomputed from the final temperatures and
+the original assembled binary64 matrix. It can increase while the physical
+link-balance residual decreases; they measure different equations.
 
 Mathematical uniqueness does not ensure an accurate floating-point answer.
 Extreme conductance ratios can erase a weak boundary contribution or make the

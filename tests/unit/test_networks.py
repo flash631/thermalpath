@@ -1,8 +1,57 @@
 """Boundary, orientation, and numerical-domain tests for the steady solver."""
 
+import numpy as np
 import pytest
 
 from thermalpath import Link, Network, Node, solve_steady
+
+
+@pytest.mark.parametrize("correction", [-1000.0, float("nan"), 2.0, 0.0])
+def test_unhelpful_correction_keeps_direct_solution(monkeypatch, correction):
+    answers = iter((np.array([306.0]), np.array([correction])))
+    monkeypatch.setattr(np.linalg, "solve", lambda a, b: next(answers))
+    result = solve_steady(
+        Network(
+            [Node("a", power_w=10), Node("sink", fixed_temperature_k=300)],
+            [Link("path", "a", "sink", 2)],
+        )
+    )
+    assert result.temperatures_k["a"] == 306.0
+    assert result.linear_residual_w["a"] == -2.0
+
+
+def test_correction_failure_keeps_direct_solution(monkeypatch):
+    calls = 0
+
+    def solve(matrix, rhs):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise np.linalg.LinAlgError("Synthetic correction failure")
+        return np.array([305.0])
+
+    monkeypatch.setattr(np.linalg, "solve", solve)
+    result = solve_steady(
+        Network(
+            [Node("a", power_w=10), Node("sink", fixed_temperature_k=300)],
+            [Link("path", "a", "sink", 2)],
+        )
+    )
+    assert calls == 2
+    assert result.temperatures_k["a"] == 305.0
+
+
+def test_improving_correction_updates_reported_matrix_residual(monkeypatch):
+    answers = iter((np.array([306.0]), np.array([-1.0])))
+    monkeypatch.setattr(np.linalg, "solve", lambda a, b: next(answers))
+    result = solve_steady(
+        Network(
+            [Node("a", power_w=10), Node("sink", fixed_temperature_k=300)],
+            [Link("path", "a", "sink", 2)],
+        )
+    )
+    assert result.temperatures_k["a"] == 305.0
+    assert result.linear_residual_w["a"] == 0.0
 
 
 def test_one_node_heating_and_result_order():

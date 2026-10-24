@@ -1,5 +1,8 @@
 # Explicit source distribution inventory.
 global-exclude *
+include tests/ui/test_network_app.py
+include docs/decisions/0028-worksheet-resource-limits.md
+include docs/devlog/day28.md
 include app/network_app.py
 include tests/integration/test_app_network.py
 include docs/decisions/0027-local-network-worksheet.md

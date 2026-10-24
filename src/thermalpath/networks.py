@@ -59,9 +59,10 @@ def solve_steady(network: Network) -> SteadyResult:
 
     Notes
     -----
-    Solves L_uu T_u = P_u - L_uf T_f using a dense binary64 linear solve.
+    Solves L_uu T_u = P_u - L_uf T_f using a dense binary64 linear solve,
+    followed by one bounded correction using the original link balances.
     There is no storage, radiation, or temperature-dependent conductance.
-    This direct solve has no mesh, iteration, or time-step convergence parameter.
+    There is no mesh, iteration, or time-step convergence parameter.
     Extreme conductance ratios or small temperature differences can lose
     accuracy; finite results are not an accuracy certificate. See docs/networks.md.
     """
@@ -104,6 +105,29 @@ def solve_steady(network: Network) -> SteadyResult:
             residual = rhs - matrix @ solution
         if not np.all(np.isfinite(residual)):
             raise ValueError("linear residual is outside float range")
+        # Correct assembly rounding using the original individual conductances.
+        # This is one attempt, not a convergence loop or an accuracy certificate.
+        trial_temperatures = temperatures | {
+            node.id: float(solution[i]) for i, node in enumerate(unknown)
+        }
+        try:
+            defect = _link_balance_residual(network, trial_temperatures, indices)
+            with np.errstate(over="raise", invalid="raise", under="ignore"):
+                candidate = solution + np.linalg.solve(matrix, defect)
+            if np.all(np.isfinite(candidate)) and np.all(candidate > 0):
+                trial_temperatures.update(
+                    (node.id, float(candidate[i])) for i, node in enumerate(unknown)
+                )
+                corrected = _link_balance_residual(network, trial_temperatures, indices)
+                if np.max(np.abs(corrected)) < np.max(np.abs(defect)):
+                    solution = candidate
+        except (ArithmeticError, ValueError, np.linalg.LinAlgError):
+            # An unusable optional correction cannot replace the direct result.
+            pass
+        with np.errstate(over="ignore", invalid="ignore"):
+            residual = rhs - matrix @ solution
+        if not np.all(np.isfinite(residual)):
+            raise ValueError("linear residual is outside float range")
         residuals = {node.id: float(residual[i]) for i, node in enumerate(unknown)}
         temperatures.update(
             (node.id, float(solution[i])) for i, node in enumerate(unknown)
@@ -119,3 +143,21 @@ def solve_steady(network: Network) -> SteadyResult:
     return SteadyResult(
         {node.id: temperatures[node.id] for node in network.nodes}, powers, residuals
     )
+
+
+def _link_balance_residual(
+    network: Network, temperatures: dict[str, float], indices: dict[str, int]
+) -> np.ndarray:
+    """Evaluate unknown-node input minus outgoing link power in watts."""
+    terms = {node.id: [node.power_w] for node in network.nodes if node.id in indices}
+    for link in network.links:
+        power = link.conductance_w_k * (
+            temperatures[link.node_a] - temperatures[link.node_b]
+        )
+        if not math.isfinite(power):
+            raise ValueError("link balance is outside float range")
+        if link.node_a in terms:
+            terms[link.node_a].append(-power)
+        if link.node_b in terms:
+            terms[link.node_b].append(power)
+    return np.array([math.fsum(terms[node]) for node in indices])

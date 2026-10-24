@@ -113,10 +113,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: controls call the existing library, show units and limitations,
   and provide results without duplicating physics or adding cloud services.
   Completion date: 2026-10-22. Evidence: docs/devlog/day27.md.
-- [ ] D28 | app/tests | AppTest coverage and resource limits.
+- [x] D28 | app/tests | AppTest coverage and resource limits.
   Acceptance: exercise valid/error flows, useful input messages, bounded grid
   and sample counts, and agreement with the same direct library case.
-  Completion date: pending. Evidence: docs/devlog/day28.md.
+  Completion date: 2026-10-24. Evidence: docs/devlog/day28.md.
 - [ ] D29 | reproducibility | Fresh installation, runtime, interview notes.
   Acceptance: install into an empty environment, reproduce the documented demo,
   report measured runtime without machine identifiers and explain key decisions.

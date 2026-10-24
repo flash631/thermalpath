@@ -7,6 +7,35 @@ import pytest
 from thermalpath import Link, Network, Node, solve_steady
 
 
+@pytest.mark.parametrize("sink", [1.0, 1000.0])
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize("scale", [0.5, 1.0, 8.0])
+def test_high_conductance_ratio_original_equations(sink, reverse, scale):
+    # The exact input equations retain Gs; rounding Gc+Gs first loses accuracy.
+    power, contact, path = 1000.0 * scale, 100.0 * scale, 0.1 * scale
+    nodes = [
+        Node("a", power_w=power),
+        Node("b"),
+        Node("sink", fixed_temperature_k=sink),
+    ]
+    links = [Link("ab", "a", "b", contact), Link("bs", "b", "sink", path)]
+    if reverse:
+        nodes.reverse()
+        links = [
+            Link(link.id, link.node_b, link.node_a, link.conductance_w_k)
+            for link in links
+        ]
+    result = solve_steady(Network(nodes, links))
+    b = Fraction(sink) + Fraction(power) / Fraction(path)
+    a = b + Fraction(power) / Fraction(contact)
+    for name, exact in (("a", a), ("b", b)):
+        assert abs(Fraction(result.temperatures_k[name]) - exact) <= Fraction(2e-10)
+    sign = -1 if reverse else 1
+    assert result.link_powers_w == pytest.approx(
+        {"ab": sign * power, "bs": sign * power}, rel=0, abs=2e-10
+    )
+
+
 @pytest.mark.parametrize("reverse", [False, True])
 def test_two_unknown_nodes_with_two_boundaries(reverse):
     # Independent elimination: 3*Ta - Tb = 610, -Ta + 4*Tb = 930.
