@@ -117,10 +117,10 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: exercise valid/error flows, useful input messages, bounded grid
   and sample counts, and agreement with the same direct library case.
   Completion date: 2026-10-24. Evidence: docs/devlog/day28.md.
-- [ ] D29 | reproducibility | Fresh installation, runtime, interview notes.
+- [x] D29 | reproducibility | Fresh installation, runtime, interview notes.
   Acceptance: install into an empty environment, reproduce the documented demo,
   report measured runtime without machine identifiers and explain key decisions.
-  Completion date: pending. Evidence: docs/devlog/day29.md.
+  Completion date: 2026-10-25. Evidence: docs/devlog/day29.md.
 - [ ] D30 | release | Final evidence audit and v0.1.0 release.
   Acceptance: audit every claim/reference, build README gallery from reviewed
   results, publish tag/release notes after required repairs and passing CI,

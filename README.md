@@ -23,8 +23,8 @@ use [cell overlap integration](docs/sources.md). Each solved plate reports
 A synthetic [heat-spreader study](docs/case_study.md) compares three plate
 thicknesses under nominal and stress loads, with numerical checks and a
 qualified recommendation for further evaluation. Reports
-and a small Streamlit interface remain planned
-in [ROADMAP.md](ROADMAP.md).
+and a small local Streamlit interface are available. See
+[ROADMAP.md](ROADMAP.md) for completed work and remaining release checks.
 
 ## Install
 
@@ -48,10 +48,13 @@ python3.12 -m venv .venv
 
 The lock contains third-party packages only. It records tested versions, with
 platform markers for platform-specific dependencies. The network solver uses
-NumPy; SciPy and Matplotlib are included for subsequent increments.
-D01 physics uses the standard library.
-The `app` extra reserves Streamlit as an optional dependency; D01 has no app.
+NumPy; plate calculations and plotting use SciPy and Matplotlib.
+The series-path physics uses the standard library. The `app` extra provides
+Streamlit for the optional local worksheet.
 No package registry publication is implied by this repository's package name.
+
+For a fresh-environment reproduction, checked demo runtime, and engineering
+discussion notes, see [reproducibility](docs/reproducibility.md).
 
 ## A runnable calculation
 
@@ -143,8 +146,8 @@ Check the node residuals even when the global balance is zero. See
 Run `thermalpath run-network examples/cases/heater.json` after installation,
 or use `python -m thermalpath.cli run-network examples/cases/heater.json`.
 The command prints temperatures, signed link powers, and heat-balance diagnostics
-as JSON. See [case format and exit codes](docs/cases.md). The Streamlit interface
-is planned for D27.
+as JSON. See [case format and exit codes](docs/cases.md) and the
+[local Streamlit worksheet](app/README.md).
 
 `rc_step` evaluates the closed-form response of a single body with positive heat
 capacity and resistance to a fixed reservoir. `RCResult` separates stored energy

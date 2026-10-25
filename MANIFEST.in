@@ -1,5 +1,10 @@
 # Explicit source distribution inventory.
 global-exclude *
+include examples/demo_runtime.py
+include tests/integration/test_demo_runtime.py
+include docs/reproducibility.md
+include docs/decisions/0029-fresh-installation.md
+include docs/devlog/day29.md
 include tests/ui/test_network_app.py
 include docs/decisions/0028-worksheet-resource-limits.md
 include docs/devlog/day28.md
