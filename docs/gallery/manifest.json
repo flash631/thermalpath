@@ -1,0 +1,9 @@
+{
+  "matplotlib_version": "3.11.2",
+  "sha256": {
+    "inputs.json": "28936b55a087cd7f8e0ebbe61cacfcc3e4f71f7868318690af4d1b73c102f3b5",
+    "temperature.png": "37cf09b2355be3fb5fea7b3ef434c66b5ec134a073c06dfe9a0c8dfbe1ede184",
+    "transient.png": "d9a9402aeb15c04e3718ba61b3312f013bfb8071e5b8f3e03cf498c43f2e6fac",
+    "errors.png": "e7663b24dcf4a1915da625a8c4c042501ec6d7022d68c03d58b6403208592720"
+  }
+}

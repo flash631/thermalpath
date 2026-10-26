@@ -24,7 +24,32 @@ A synthetic [heat-spreader study](docs/case_study.md) compares three plate
 thicknesses under nominal and stress loads, with numerical checks and a
 qualified recommendation for further evaluation. Reports
 and a small local Streamlit interface are available. See
-[ROADMAP.md](ROADMAP.md) for completed work and remaining release checks.
+[ROADMAP.md](ROADMAP.md) for the development record and
+[v0.1.0 release notes](docs/releases/v0.1.0.md) for the release scope.
+
+## Numerical gallery
+
+These figures reproduce synthetic benchmarks using the included examples.
+They show computed results and analytical references, with no measured data.
+
+![Finite-volume and continuum cell-centre temperatures on a 60 by 40 mm plate, using a shared kelvin scale](docs/gallery/temperature.png)
+
+The manufactured plate uses a 16 by 12 grid. Both panels use identical cell
+locations and color limits. The maximum temperature error is about 0.125127 K;
+similar colors alone do not establish agreement.
+
+![Backward-Euler and analytical RC temperatures from 0 to 20 seconds](docs/gallery/transient.png)
+
+For a 20 s time constant, the 1 s backward-Euler step remains below the
+analytical heating curve. At 20 s the temperature difference is about 0.090100 K.
+Markers are evaluated samples; connecting lines guide the eye.
+
+![Mean, RMS and maximum temperature errors on three spatial grids](docs/gallery/errors.png)
+
+Both grid spacings halve together. Maximum-error orders are about 1.60020 and
+1.82593; the finite results are preserved. The [gallery record](docs/gallery/README.md)
+contains the replay command, plotted inputs and hashes. See the
+[release evidence audit](docs/release_audit.md) for the claim boundaries.
 
 ## Install
 
@@ -176,7 +201,7 @@ evidence.
 ## Limits and contribution
 
 This release predicts prescribed series paths, steady lumped networks, and a
-one-node and network transients with constant properties and fixed boundary
+one-node response and network transients with constant properties and fixed boundary
 temperatures.
 It also solves small plates with uniform or cellwise conductivity,
 perfect contact at aligned material faces, prescribed edge temperatures,

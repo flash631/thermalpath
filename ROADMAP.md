@@ -121,8 +121,8 @@ features require appropriate analytical references, tests, and documented limits
   Acceptance: install into an empty environment, reproduce the documented demo,
   report measured runtime without machine identifiers and explain key decisions.
   Completion date: 2026-10-25. Evidence: docs/devlog/day29.md.
-- [ ] D30 | release | Final evidence audit and v0.1.0 release.
+- [x] D30 | release | Final evidence audit and v0.1.0 release.
   Acceptance: audit every claim/reference, build README gallery from reviewed
   results, publish tag/release notes after required repairs and passing CI,
   and record completed release evidence.
-  Completion date: pending. Evidence: docs/devlog/day30.md.
+  Completion date: 2026-10-26. Evidence: docs/devlog/day30.md and the v0.1.0 release.

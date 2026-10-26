@@ -10,8 +10,8 @@ established uncertainty bounds support this example. A calculated source
 temperature cannot establish compliance with a component limit unless the
 network, load, environment, and limit are independently justified.
 
-The later plate is depth averaged with prescribed convection. It will not solve
-airflow, turbulence, boiling, or thickness gradients. It will not estimate a
+The implemented plate is depth averaged with prescribed convection. It does not solve
+airflow, turbulence, boiling, or thickness gradients. It does not estimate a
 convection coefficient from fan speed or enclosure shape.
 
 Finite inputs can still exceed floating-point range. The API rejects a

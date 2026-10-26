@@ -137,7 +137,9 @@ The executed 4 by 3 example gives:
 Last digits can vary with the numerical library. The continuum west/east
 power is about 0.711111111111 W each, and south/north power is 1.6 W each.
 Thus the edge partition and temperatures have finite discretization errors
-even though their total power balance closes. No correction is applied.
+even though their total power balance closes. These are the original D16
+observations. No benchmark-specific correction is applied; the current solver's
+bounded link-residual correction is described in [network limits](networks.md#numerical-scope).
 
 ## Scope and next comparison
 
@@ -146,6 +148,6 @@ integrated-load construction and one independently checked discrete solve.
 It does not measure a spatial order or establish physical validation. The
 frozen family for D17 is `(nx,ny)=(4m,3m)` with `m=1,2,4`, using the same
 physical parameters, all fixed edges, and freshly integrated cell loads.
-D17 will report the resulting errors and conservation; those later solves
-are not D16 evidence. This polynomial benchmark does not cover discontinuous
+D17 reports the resulting [errors and conservation](plate_refinement.md);
+those later solves are separate evidence. This polynomial benchmark does not cover discontinuous
 materials, mixed boundaries or arbitrary unstructured grids.

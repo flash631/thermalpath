@@ -10,8 +10,10 @@ forcing supply fresh cell loads; a coarse heater list is never reused.
 
 The JSON report includes these inputs, every cell centre, computed and reference
 temperatures, signed errors, cell loads, norm errors, both observed orders and
-separate conservation diagnostics. Nothing is fitted or corrected after solving.
-The production solver and public API are unchanged.
+separate conservation diagnostics. No benchmark-specific adjustment is applied.
+The current network solver may apply its documented [single residual correction](networks.md#numerical-scope)
+before returning temperatures. The tables below retain the original D17 run;
+reproductions can differ in their last floating-point digits.
 
 ## Error definitions
 

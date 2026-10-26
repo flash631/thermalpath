@@ -85,5 +85,5 @@ interview or an external evaluation.
   but cannot authenticate a measurement by itself.
 - **Make reproduction inspectable.** A normal install, pinned dependencies,
   checked module location and preserved timing samples reveal more than a
-  successful run in an existing development environment. The next release
-  audit still needs to check all claims and distributed evidence.
+  successful run in an existing development environment. The
+  [release audit](release_audit.md) records the review of claims and distributed evidence.

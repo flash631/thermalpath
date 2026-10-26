@@ -157,19 +157,20 @@ rejected. See [D06 decisions](decisions/0006-one-node-rc.md) and
 [the transient equations](transient.md). No time-step refinement applies to a
 closed-form evaluation, and no physical validation is claimed.
 
-## Coverage and future verification
+## Coverage and evidence record
 
 `scripts/check.py` measures lines and branches over `thermalpath`, including
 implemented modules not imported by a particular test. The combined threshold
 is 90%; no module is excluded to raise the score. Quality-driver tests run in the same
 pytest session but do not substitute for package coverage.
 
-D01 has no mesh/time-step refinement or physical dataset. Later increments must
-add their own analytical references, conservation tests, invalid-input cases,
-and regressions. D16 requires an independently derived manufactured solution;
-D17 requires three meshes and an observed-order estimate on a smooth problem.
-Refinement results must report the actual grid family and tolerances, including
-adverse or unresolved outcomes.
+D01 has no mesh/time-step refinement or physical dataset. Later increments
+add their own analytical references, conservation tests, invalid-input cases
+and regressions. D16 supplies an independently derived manufactured solution;
+D17 reports three meshes and observed orders on that smooth problem.
+The [release audit](release_audit.md) maps all increments to their evidence,
+including the later studies, reports, worksheet and installation checks.
+Finite refinement results retain the grid family, tolerances and adverse outcomes.
 
 See [day01.md](devlog/day01.md) for executed local evidence. Public CI outcomes
 must be obtained from the specific run, not inferred from local execution.

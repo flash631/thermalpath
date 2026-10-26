@@ -84,7 +84,8 @@ construction of `PlateResult`; that empty default is not a computed balance.
 
 ## Conservation and uniqueness
 
-There is no volume heat generation or storage. Each cell satisfies
+For the source-free boundary cases on this page there is no heat generation
+or storage. Each cell satisfies
 `sum(Q_lateral_out) + Q_broad_out = 0`. Prescribed outward flux powers enter
 the existing network solver as negative cell loads. Internal face powers are
 computed once and assigned exact opposite signs in neighboring cells.
