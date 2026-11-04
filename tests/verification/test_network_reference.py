@@ -10,7 +10,8 @@ from thermalpath import Link, Network, Node, solve_steady
 @pytest.mark.parametrize("sink", [1.0, 1000.0])
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("scale", [0.5, 1.0, 8.0])
-def test_high_conductance_ratio_original_equations(sink, reverse, scale):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_high_conductance_ratio_original_equations(sink, reverse, scale, backend):
     # The exact input equations retain Gs; rounding Gc+Gs first loses accuracy.
     power, contact, path = 1000.0 * scale, 100.0 * scale, 0.1 * scale
     nodes = [
@@ -25,7 +26,7 @@ def test_high_conductance_ratio_original_equations(sink, reverse, scale):
             Link(link.id, link.node_b, link.node_a, link.conductance_w_k)
             for link in links
         ]
-    result = solve_steady(Network(nodes, links))
+    result = solve_steady(Network(nodes, links), backend=backend)
     b = Fraction(sink) + Fraction(power) / Fraction(path)
     a = b + Fraction(power) / Fraction(contact)
     for name, exact in (("a", a), ("b", b)):
@@ -37,7 +38,8 @@ def test_high_conductance_ratio_original_equations(sink, reverse, scale):
 
 
 @pytest.mark.parametrize("reverse", [False, True])
-def test_two_unknown_nodes_with_two_boundaries(reverse):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_two_unknown_nodes_with_two_boundaries(reverse, backend):
     # Independent elimination: 3*Ta - Tb = 610, -Ta + 4*Tb = 930.
     # Substitution gives 11*Ta=3370 and Tb=3*Ta-610.
     ta = Fraction(3370, 11)
@@ -59,7 +61,7 @@ def test_two_unknown_nodes_with_two_boundaries(reverse):
             Link(link.id, link.node_b, link.node_a, link.conductance_w_k)
             for link in reversed(links)
         ]
-    result = solve_steady(Network(nodes, links))
+    result = solve_steady(Network(nodes, links), backend=backend)
     assert result.temperatures_k["a"] == pytest.approx(float(ta), rel=0, abs=1e-11)
     assert result.temperatures_k["b"] == pytest.approx(float(tb), rel=0, abs=1e-11)
     expected = {"ac": 2 * (ta - 300), "ab": ta - tb, "bw": 3 * (tb - 320)}
@@ -78,7 +80,8 @@ def test_two_unknown_nodes_with_two_boundaries(reverse):
 
 
 @pytest.mark.parametrize("scale", [0.5, 1, 8])
-def test_series_limiting_case(scale):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_series_limiting_case(scale, backend):
     # 15 W through R=(1, 1/20, 2) K/W from a 318.15 K reservoir.
     # Scaling every conductance and load equally leaves temperatures unchanged.
     sink = Fraction(31815, 100)
@@ -102,7 +105,8 @@ def test_series_limiting_case(scale):
                 Link("tim", "interface", "base", 20 * scale),
                 Link("two", "base", "sink", 0.5 * scale),
             ],
-        )
+        ),
+        backend=backend,
     )
     for name, temperature in expected.items():
         assert result.temperatures_k[name] == pytest.approx(

@@ -156,6 +156,10 @@ do not solve temperatures or establish that a steady solution exists.
 
 `solve_steady(network)` solves small constant-conductance networks and returns
 `SteadyResult.temperatures_k` and `SteadyResult.link_powers_w` dictionaries by ID.
+Choose `solve_steady(network, backend="sparse")` for sparse assembly and a
+SciPy sparse factorization. The dense backend remains the default. See the
+[sparse verification record](docs/devlog/day31.md) for analytical checks and
+bounded matrix-storage measurements.
 Every unknown node must have a path to a fixed-temperature boundary. Positive
 link power flows from `node_a` to `node_b`. See [steady networks](docs/networks.md)
 for a runnable example, the governing equations, and numerical limits. Independent

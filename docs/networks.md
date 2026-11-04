@@ -16,6 +16,17 @@ print(result.temperatures_k)  # {'heater': 305.0, 'sink': 300.0}
 print(result.link_powers_w)  # {'path': 10.0}
 ```
 
+For sparse assembly and factorization, choose the backend explicitly:
+
+```python
+result = solve_steady(network, backend="sparse")
+```
+
+The default remains `backend="dense"`. Both choices return `SteadyResult` and
+apply the same physical input and output checks. Other backend values raise
+`ValueError`. SciPy is already a required package dependency; no optional extra
+is needed. Backend selection currently applies to this library function.
+
 Both dictionaries use the input IDs and preserve input order. They are independent
 copies that the caller may edit. Positive link power goes from `node_a` to
 `node_b`; reversing those endpoints reverses its sign. Negative node power means
@@ -67,11 +78,25 @@ overflows or underflows to zero.
 
 ## Numerical scope
 
-The solver uses a dense binary64 matrix and
+The default backend uses a dense binary64 matrix and
 [`numpy.linalg.solve`](https://numpy.org/doc/stable/reference/generated/numpy.linalg.solve.html).
 NumPy documents a direct LAPACK solve for square full-rank systems. Dense storage
 grows quadratically and solve work cubically with the number of unknown nodes;
 this implementation is intended for small networks.
+
+The sparse backend uses SciPy's
+[`dok_array`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.dok_array.html)
+to accumulate individual conductances, converts to compressed sparse column
+(CSC) storage, then uses
+[`splu`](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.splu.html).
+This is a pivoted direct LU factorization supplied by
+[SuperLU](https://portal.nersc.gov/project/sparse/superlu/), using the library's
+default column ordering. Both backends visit the same individual links in input
+order. The sparse path stores populated entries without constructing a dense
+unknown-by-unknown matrix. Assembly storage is proportional to nodes and links.
+The factors can contain additional entries, called fill; factorization memory
+and time depend on the graph and ordering. Sparse solving does not guarantee
+lower runtime or lower total memory for every network.
 
 After the direct solve, one correction is attempted using the original link
 balances: `r_i = P_i - sum_j G_ij * (T_i - T_j)`. The signed terms are summed
@@ -82,6 +107,7 @@ temperatures are finite and positive and the largest absolute link-balance
 residual decreases strictly. Otherwise the direct solution is kept. An
 arithmetic failure during this optional correction also keeps the direct result;
 the initial system and final temperature/power range checks still apply.
+The sparse path reuses its one LU factorization for the correction solve.
 
 This adds at most one linear solve and two link-balance evaluations, with no
 convergence loop. It can reduce errors caused by matrix assembly rounding,
@@ -105,3 +131,8 @@ check finite synthetic networks with justified tolerances. They do not validate
 conductance values, device geometry, or temperatures measured on hardware.
 The [connectivity and heat-balance diagnostics](diagnostics.md) report component
 membership, unknown-node residuals, and signed reservoir powers.
+
+The [sparse verification cases](verification.md#d31-sparse-network-verification)
+include an exact series chain with 4,096 unknown temperatures, independent
+rational references, and guarded checks against dense allocation. Matrix-buffer
+measurements in [the D31 record](devlog/day31.md) do not measure peak memory.

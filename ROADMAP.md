@@ -126,3 +126,8 @@ features require appropriate analytical references, tests, and documented limits
   results, publish tag/release notes after required repairs and passing CI,
   and record completed release evidence.
   Completion date: 2026-10-26. Evidence: docs/devlog/day30.md and the v0.1.0 release.
+- [x] D31 | networks | Explicit sparse steady-network backend.
+  Acceptance: retain the dense default, physical domains and result API; verify
+  independent rational/analytical cases, numerical failures and a bounded sparse
+  chain without dense assembly. Report storage separately from peak memory.
+  Completion date: 2026-11-04. Evidence: docs/devlog/day31.md.

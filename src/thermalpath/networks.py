@@ -1,9 +1,12 @@
-"""Dense steady solutions for small constant-conductance thermal networks."""
+"""Dense and sparse steady solutions for constant-conductance thermal networks."""
 
 import math
 from dataclasses import dataclass, field
+from typing import Literal
 
 import numpy as np
+from scipy.sparse import dok_array
+from scipy.sparse.linalg import splu
 
 from thermalpath.diagnostics import check_connectivity
 from thermalpath.models import Network
@@ -34,7 +37,9 @@ class SteadyResult:
     linear_residual_w: dict[str, float] = field(default_factory=dict)
 
 
-def solve_steady(network: Network) -> SteadyResult:
+def solve_steady(
+    network: Network, *, backend: Literal["dense", "sparse"] = "dense"
+) -> SteadyResult:
     """Solve steady node balances with prescribed temperature boundaries.
 
     Parameters
@@ -43,6 +48,10 @@ def solve_steady(network: Network) -> SteadyResult:
         Validated constant positive conductances [W/K], signed nodal loads [W],
         and fixed boundary temperatures [K]. Every unknown node must have a
         path to at least one fixed-temperature node.
+    backend : {"dense", "sparse"}, optional
+        Dense NumPy solve by default. The explicit sparse backend assembles
+        only populated entries and uses SciPy's SuperLU factorization.
+        SciPy is an existing required dependency of ThermalPath.
 
     Returns
     -------
@@ -52,20 +61,26 @@ def solve_steady(network: Network) -> SteadyResult:
     Raises
     ------
     ValueError
-        The input is not a Network, an unknown node lacks a fixed boundary,
-        the assembled system is singular or exceeds floating-point range,
+        The backend is invalid, the input is not a Network, an unknown node
+        lacks a fixed boundary, the assembled system is singular or exceeds
+        floating-point range,
         a temperature is nonfinite/nonpositive, or a nonzero link power
         overflows or underflows to zero.
 
     Notes
     -----
-    Solves L_uu T_u = P_u - L_uf T_f using a dense binary64 linear solve,
+    Solves L_uu T_u = P_u - L_uf T_f using a binary64 direct linear solve,
     followed by one bounded correction using the original link balances.
+    The sparse backend reuses its factorization for this correction. Sparse
+    assembly storage follows the populated entries; factorization fill and
+    memory depend on the network topology and ordering.
     There is no storage, radiation, or temperature-dependent conductance.
     There is no mesh, iteration, or time-step convergence parameter.
     Extreme conductance ratios or small temperature differences can lose
     accuracy; finite results are not an accuracy certificate. See docs/networks.md.
     """
+    if not isinstance(backend, str) or backend not in ("dense", "sparse"):
+        raise ValueError("backend must be 'dense' or 'sparse'")
     check_connectivity(network)
     temperatures = {
         node.id: node.fixed_temperature_k
@@ -76,7 +91,12 @@ def solve_steady(network: Network) -> SteadyResult:
     indices = {node.id: i for i, node in enumerate(unknown)}
     residuals = {}
     if unknown:
-        matrix = np.zeros((len(unknown), len(unknown)), dtype=float)
+        shape = (len(unknown), len(unknown))
+        matrix = (
+            dok_array(shape, dtype=float)
+            if backend == "sparse"
+            else np.zeros(shape, dtype=float)
+        )
         rhs = np.array([node.power_w for node in unknown], dtype=float)
         try:
             with np.errstate(over="raise", invalid="raise", under="raise"):
@@ -94,8 +114,13 @@ def solve_steady(network: Network) -> SteadyResult:
                                 rhs[i] += (
                                     np.float64(link.conductance_w_k) * temperatures[b]
                                 )
-                solution = np.linalg.solve(matrix, rhs)
-        except (FloatingPointError, np.linalg.LinAlgError) as exc:
+                if backend == "sparse":
+                    matrix = matrix.tocsc()
+                    factor = splu(matrix)
+                    solution = factor.solve(rhs)
+                else:
+                    solution = np.linalg.solve(matrix, rhs)
+        except (FloatingPointError, np.linalg.LinAlgError, RuntimeError) as exc:
             raise ValueError(
                 "steady system is singular or outside float range"
             ) from exc
@@ -113,7 +138,12 @@ def solve_steady(network: Network) -> SteadyResult:
         try:
             defect = _link_balance_residual(network, trial_temperatures, indices)
             with np.errstate(over="raise", invalid="raise", under="ignore"):
-                candidate = solution + np.linalg.solve(matrix, defect)
+                correction = (
+                    factor.solve(defect)
+                    if backend == "sparse"
+                    else np.linalg.solve(matrix, defect)
+                )
+                candidate = solution + correction
             if np.all(np.isfinite(candidate)) and np.all(candidate > 0):
                 trial_temperatures.update(
                     (node.id, float(candidate[i])) for i, node in enumerate(unknown)
@@ -121,7 +151,7 @@ def solve_steady(network: Network) -> SteadyResult:
                 corrected = _link_balance_residual(network, trial_temperatures, indices)
                 if np.max(np.abs(corrected)) < np.max(np.abs(defect)):
                     solution = candidate
-        except (ArithmeticError, ValueError, np.linalg.LinAlgError):
+        except (ArithmeticError, ValueError, np.linalg.LinAlgError, RuntimeError):
             # An unusable optional correction cannot replace the direct result.
             pass
         with np.errstate(over="ignore", invalid="ignore"):

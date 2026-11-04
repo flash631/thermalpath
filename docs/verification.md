@@ -364,3 +364,45 @@ and comparison bounds. Mean/RMS orders approach two, while maximum-norm
 orders remain 1.60020 and 1.82593. Both rates and the small physical/linear
 residuals are retained. The standalone JSON includes every cell for replay;
 this bounded numerical study does not establish physical validation.
+
+## D31 sparse network verification
+
+`tests/verification/test_network_reference.py` runs the existing independent
+series, two-boundary and high-conductance-ratio references for both dense and
+sparse backends, with all original tolerances retained. The high-ratio tests
+compare to exact rational equations for the actual binary64 inputs, preserving
+the 2e-10 K and W limits from D28.
+
+`tests/verification/test_sparse_network_reference.py` adds exact rational
+manufactured temperatures on a branched network. Loads are calculated from
+individual rational link laws before any solver call. The cases include
+heterogeneous and parallel conductances, signed powers, fixed-to-fixed links,
+reversed input/orientation order and two separately anchored components.
+Acceptance is 2e-10 K per temperature and 2e-9 W per link and physical nodal
+residual. Floating-point input conversion is covered by these finite tolerances.
+
+The chain reference uses n unknowns numbered 0 through n-1 and a fixed node n
+at 300 K. All conductances are 1 W/K; only node 0 has a load, 0.125 W. Serial
+heat balance gives `q_i=0.125 W` and `T_i=300+(n-i)/8 K`. At n=32 and n=128,
+both backends must match temperatures within 2e-9 K, with mutual agreement
+within 2e-9 K. At n=4096, the sparse temperature tolerance is 2e-6 K. The
+larger allowance accommodates accumulation of roundoff in this longer,
+more poorly conditioned chain; it is not a proven bound for other networks.
+All chain link-power errors and nodal/matrix residuals must be at most 2e-9 W.
+
+The 4096-node test also blocks dense solves, sparse-to-dense conversions and
+large square NumPy allocations. It requires `3*n-2` stored entries and CSC
+data/index/pointer buffers of at most `64*n` bytes. The bound accommodates
+32-bit or 64-bit indices; it excludes assembly objects and LU workspace.
+The [D31 measurements](devlog/day31.md) record observed sizes and errors.
+
+Reproduce the targeted numerical and domain checks with:
+
+```text
+python -m pytest tests/unit/test_networks.py tests/unit/test_sparse_networks.py tests/verification/test_network_reference.py tests/verification/test_sparse_network_reference.py
+```
+
+The unit cases cover unchanged domain checks, invalid backend selection,
+factorization failure, fixed-only networks, one-factor reuse and accepted,
+rejected or failed optional corrections. These are synthetic numerical checks.
+No physical measurements or cross-tool speed benchmark are included.

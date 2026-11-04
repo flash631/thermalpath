@@ -54,54 +54,63 @@ def test_improving_correction_updates_reported_matrix_residual(monkeypatch):
     assert result.linear_residual_w["a"] == 0.0
 
 
-def test_one_node_heating_and_result_order():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_one_node_heating_and_result_order(backend):
     network = Network(
         [Node("heater", power_w=10), Node("sink", fixed_temperature_k=300)],
         [Link("path", "heater", "sink", 2)],
     )
-    result = solve_steady(network)
+    result = solve_steady(network, backend=backend)
     assert result.temperatures_k == {"heater": 305, "sink": 300}
     assert list(result.temperatures_k) == ["heater", "sink"]
     assert result.link_powers_w == {"path": 10}
     result.temperatures_k["heater"] = 1
-    assert solve_steady(network).temperatures_k["heater"] == 305
+    assert solve_steady(network, backend=backend).temperatures_k["heater"] == 305
 
 
 @pytest.mark.parametrize("power, temperature", [(0, 300), (-20, 290)])
-def test_zero_load_and_extraction(power, temperature):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_zero_load_and_extraction(power, temperature, backend):
     result = solve_steady(
         Network(
             [Node("a", power_w=power), Node("b", fixed_temperature_k=300)],
             [Link("ab", "a", "b", 2)],
-        )
+        ),
+        backend=backend,
     )
     assert result.temperatures_k["a"] == temperature
     assert result.link_powers_w["ab"] == power
 
 
-def test_parallel_links_and_reversed_orientation():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_parallel_links_and_reversed_orientation(backend):
     result = solve_steady(
         Network(
             [Node("a", power_w=12), Node("b", fixed_temperature_k=300)],
             [Link("forward", "a", "b", 1), Link("reverse", "b", "a", 2)],
-        )
+        ),
+        backend=backend,
     )
     assert result.temperatures_k == {"a": 304, "b": 300}
     assert result.link_powers_w == {"forward": 4, "reverse": -8}
 
 
-def test_all_fixed_nodes_and_empty_links():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_all_fixed_nodes_and_empty_links(backend):
     nodes = [
         Node("hot", fixed_temperature_k=350),
         Node("cold", fixed_temperature_k=300),
     ]
-    result = solve_steady(Network(nodes, [Link("bc", "hot", "cold", 2)]))
+    result = solve_steady(
+        Network(nodes, [Link("bc", "hot", "cold", 2)]), backend=backend
+    )
     assert result.temperatures_k == {"hot": 350, "cold": 300}
     assert result.link_powers_w == {"bc": 100}
-    assert solve_steady(Network(nodes)).link_powers_w == {}
+    assert solve_steady(Network(nodes), backend=backend).link_powers_w == {}
 
 
-def test_separate_anchored_networks_are_valid():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_separate_anchored_networks_are_valid(backend):
     result = solve_steady(
         Network(
             [
@@ -111,7 +120,8 @@ def test_separate_anchored_networks_are_valid():
                 Node("d", fixed_temperature_k=350),
             ],
             [Link("ab", "a", "b", 2), Link("cd", "c", "d", 1)],
-        )
+        ),
+        backend=backend,
     )
     assert result.temperatures_k == {"a": 302, "b": 300, "c": 348, "d": 350}
 
@@ -133,26 +143,30 @@ def test_separate_anchored_networks_are_valid():
         ),
     ],
 )
-def test_unanchored_nodes_rejected_even_with_balanced_loads(network):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_unanchored_nodes_rejected_even_with_balanced_loads(network, backend):
     with pytest.raises(ValueError, match="path to a fixed temperature"):
-        solve_steady(network)
+        solve_steady(network, backend=backend)
 
 
 @pytest.mark.parametrize("bad", [None, {}, [], 1])
-def test_wrong_input_type(bad):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_wrong_input_type(bad, backend):
     with pytest.raises(ValueError, match="must be a Network"):
-        solve_steady(bad)
+        solve_steady(bad, backend=backend)
 
 
 @pytest.mark.parametrize("power", [-600, -602, 1e308])
-def test_nonpositive_or_overflowed_temperature(power):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_nonpositive_or_overflowed_temperature(power, backend):
     conductance = 1e-300 if power > 0 else 2
     with pytest.raises(ValueError, match="temperatures must be finite and positive"):
         solve_steady(
             Network(
                 [Node("a", power_w=power), Node("b", fixed_temperature_k=300)],
                 [Link("ab", "a", "b", conductance)],
-            )
+            ),
+            backend=backend,
         )
 
 
@@ -160,40 +174,47 @@ def test_nonpositive_or_overflowed_temperature(power):
     "conductance, fixed_temperature",
     [(1e308, 300), (1e-300, 1e-300)],
 )
-def test_boundary_term_outside_range(conductance, fixed_temperature):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_boundary_term_outside_range(conductance, fixed_temperature, backend):
     with pytest.raises(ValueError, match="system is singular or outside float range"):
         solve_steady(
             Network(
                 [Node("a"), Node("b", fixed_temperature_k=fixed_temperature)],
                 [Link("ab", "a", "b", conductance)],
-            )
+            ),
+            backend=backend,
         )
 
 
-def test_summed_conductance_overflow():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_summed_conductance_overflow(backend):
     with pytest.raises(ValueError, match="system is singular or outside float range"):
         solve_steady(
             Network(
                 [Node("a"), Node("b", fixed_temperature_k=1e-300)],
                 [Link("one", "a", "b", 1e308), Link("two", "a", "b", 1e308)],
-            )
+            ),
+            backend=backend,
         )
 
 
-def test_weak_anchor_lost_to_roundoff():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_weak_anchor_lost_to_roundoff(backend):
     with pytest.raises(ValueError, match="system is singular or outside float range"):
         solve_steady(
             Network(
                 [Node("a"), Node("b"), Node("sink", fixed_temperature_k=300)],
                 [Link("ab", "a", "b", 1), Link("bs", "b", "sink", 1e-30)],
-            )
+            ),
+            backend=backend,
         )
 
 
 @pytest.mark.parametrize(
     "hot, cold, conductance", [(350, 300, 1e308), (2e-100, 1e-100, 1e-300)]
 )
-def test_link_power_outside_range(hot, cold, conductance):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_link_power_outside_range(hot, cold, conductance, backend):
     with pytest.raises(ValueError, match="link power is outside float range"):
         solve_steady(
             Network(
@@ -202,5 +223,6 @@ def test_link_power_outside_range(hot, cold, conductance):
                     Node("b", fixed_temperature_k=cold),
                 ],
                 [Link("ab", "a", "b", conductance)],
-            )
+            ),
+            backend=backend,
         )
