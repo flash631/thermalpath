@@ -11,7 +11,8 @@ from thermalpath import RectangularGrid, solve_plate
 @pytest.mark.parametrize("axis", ["x", "y"])
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("cross_edges", [(0, 2), (0, 0.5, 2)])
-def test_unequal_cell_linear_continuum_solution(axis, reverse, cross_edges):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_unequal_cell_linear_continuum_solution(backend, axis, reverse, cross_edges):
     edges = (-1, -0.5, 1, 3)
     grid = RectangularGrid(
         edges if axis == "x" else cross_edges,
@@ -24,7 +25,7 @@ def test_unequal_cell_linear_continuum_solution(axis, reverse, cross_edges):
         if axis == "x"
         else {"south_k": low, "north_k": high}
     )
-    result = solve_plate(grid, 8, **boundary)
+    result = solve_plate(grid, 8, backend=backend, **boundary)
     # dT/ds=(high-low)/4; outward flow through the positive face is -k*A*dT/ds.
     positive, negative = (1, 0) if axis == "x" else (3, 2)
     for cell in range(grid.cell_count):
@@ -47,9 +48,12 @@ def test_unequal_cell_linear_continuum_solution(axis, reverse, cross_edges):
             )
 
 
-def test_independent_rational_two_dimensional_reference():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_independent_rational_two_dimensional_reference(backend):
     grid = RectangularGrid((0, 1, 3), (0, 2, 3), 0.5)
-    result = solve_plate(grid, 6, west_k=300, east_k=360, south_k=280, north_k=340)
+    result = solve_plate(
+        grid, 6, backend=backend, west_k=300, east_k=360, south_k=280, north_k=340
+    )
     # Explicit matrix and RHS are derived by hand, independent of grid methods.
     matrix = ((21, -4, -2, 0), (-4, 20, 0, -4), (-2, 0, 16, -2), (0, -4, -2, 21))
     rhs = (4440, 3840, 3840, 5160)
@@ -84,11 +88,17 @@ def test_independent_rational_two_dimensional_reference():
 
 
 @pytest.mark.parametrize("k_scale,t_scale", [(3, 1), (1, 4), (3, 4)])
-def test_conductivity_thickness_scaling(k_scale, t_scale):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_conductivity_thickness_scaling(backend, k_scale, t_scale):
     boundary = dict(west_k=300, east_k=360, south_k=280, north_k=340)
-    base = solve_plate(RectangularGrid((0, 1, 3), (0, 2, 3), 0.5), 6, **boundary)
+    base = solve_plate(
+        RectangularGrid((0, 1, 3), (0, 2, 3), 0.5), 6, backend=backend, **boundary
+    )
     scaled = solve_plate(
-        RectangularGrid((0, 1, 3), (0, 2, 3), 0.5 * t_scale), 6 * k_scale, **boundary
+        RectangularGrid((0, 1, 3), (0, 2, 3), 0.5 * t_scale),
+        6 * k_scale,
+        backend=backend,
+        **boundary,
     )
     assert scaled.temperatures_k == pytest.approx(base.temperatures_k, rel=0, abs=2e-12)
     for actual, original in zip(scaled.face_powers_w, base.face_powers_w, strict=True):
@@ -97,9 +107,12 @@ def test_conductivity_thickness_scaling(k_scale, t_scale):
         )
 
 
-def test_uniform_fixed_edges_and_translation():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_uniform_fixed_edges_and_translation(backend):
     grid = RectangularGrid((7, 7.5, 9), (-4, -3, 0), 0.125)
-    result = solve_plate(grid, 5, west_k=315, east_k=315, south_k=315, north_k=315)
+    result = solve_plate(
+        grid, 5, backend=backend, west_k=315, east_k=315, south_k=315, north_k=315
+    )
     assert result.temperatures_k == pytest.approx([315] * 4, rel=0, abs=2e-12)
     for powers in result.face_powers_w:
         assert powers == pytest.approx([0] * 4, rel=0, abs=5e-11)

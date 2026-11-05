@@ -9,9 +9,9 @@ import pytest
 from examples.plate_refinement import refinement_report
 
 
-@pytest.fixture(scope="module")
-def report():
-    return refinement_report()
+@pytest.fixture(scope="module", params=["dense", "sparse"])
+def report(request):
+    return refinement_report(backend=request.param)
 
 
 def reference(nx, ny):

@@ -131,3 +131,8 @@ features require appropriate analytical references, tests, and documented limits
   independent rational/analytical cases, numerical failures and a bounded sparse
   chain without dense assembly. Report storage separately from peak memory.
   Completion date: 2026-11-04. Evidence: docs/devlog/day31.md.
+- [x] D32 | plate | Explicit sparse steady-plate backend.
+  Acceptance: preserve face laws and the dense default; reproduce independent
+  analytical, rational and three-grid modal references with unchanged tolerances;
+  verify bounded sparse storage and retain physical/linear residual diagnostics.
+  Completion date: 2026-11-05. Evidence: docs/devlog/day32.md.

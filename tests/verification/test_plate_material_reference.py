@@ -9,9 +9,12 @@ from thermalpath import RectangularGrid, solve_plate
 
 
 @pytest.mark.parametrize("left_k,right_k", [(1, 1000000), (1000000, 1)])
-def test_large_contrast_against_exact_series_solution(left_k, right_k):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_large_contrast_against_exact_series_solution(backend, left_k, right_k):
     grid = RectangularGrid((0, 1, 4), (0, 1), 1)
-    result = solve_plate(grid, (left_k, right_k), west_k=360, east_k=300)
+    result = solve_plate(
+        grid, (left_k, right_k), backend=backend, west_k=360, east_k=300
+    )
     q = F(60) / (F(1, left_k) + F(3, right_k))
     expected = (360 - q * F(1, 2 * left_k), 300 + q * F(3, 2 * right_k))
     assert result.temperatures_k == pytest.approx(
@@ -29,7 +32,10 @@ def test_large_contrast_against_exact_series_solution(left_k, right_k):
 @pytest.mark.parametrize("axis", ["x", "y"])
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("cross_edges", [(0, 3), (0, 1, 3)])
-def test_two_layer_unequal_cells_flux_and_interface(axis, reverse, cross_edges):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_two_layer_unequal_cells_flux_and_interface(
+    backend, axis, reverse, cross_edges
+):
     edges = (0, 0.5, 2, 3, 5)
     grid = RectangularGrid(
         edges if axis == "x" else cross_edges,
@@ -46,7 +52,7 @@ def test_two_layer_unequal_cells_flux_and_interface(axis, reverse, cross_edges):
     values = tuple(
         2 if grid.indices(i)[along] < 2 else 6 for i in range(grid.cell_count)
     )
-    result = solve_plate(grid, values, **boundaries)
+    result = solve_plate(grid, values, backend=backend, **boundaries)
     # Integrate dT/ds=-q''/k across lengths 2 and 3, independently of faces.
     flux = F(low - high) / (F(2, 2) + F(3, 6))
     interface = F(low) - flux * F(2, 2)
@@ -85,10 +91,17 @@ def test_two_layer_unequal_cells_flux_and_interface(axis, reverse, cross_edges):
             assert reconstructed == pytest.approx(float(interface), rel=0, abs=1e-10)
 
 
-def test_independent_heterogeneous_2d_matrix():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_independent_heterogeneous_2d_matrix(backend):
     grid = RectangularGrid((0, 1, 3), (0, 2, 3), 0.5)
     result = solve_plate(
-        grid, (2, 4, 8, 16), west_k=300, east_k=360, south_k=280, north_k=340
+        grid,
+        (2, 4, 8, 16),
+        backend=backend,
+        west_k=300,
+        east_k=360,
+        south_k=280,
+        north_k=340,
     )
     # Nine times the hand-assembled matrix and RHS: all entries are integers.
     matrix = (
@@ -165,13 +178,20 @@ def test_independent_heterogeneous_2d_matrix():
 
 
 @pytest.mark.parametrize("k_scale,thickness_scale", [(3, 1), (1, 4), (3, 4)])
-def test_heterogeneous_scaling(k_scale, thickness_scale):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_heterogeneous_scaling(backend, k_scale, thickness_scale):
     boundaries = dict(west_k=300, east_k=360, south_k=280, north_k=340)
     values = (2, 4, 8, 16)
-    base = solve_plate(RectangularGrid((0, 1, 3), (0, 2, 3), 0.5), values, **boundaries)
+    base = solve_plate(
+        RectangularGrid((0, 1, 3), (0, 2, 3), 0.5),
+        values,
+        backend=backend,
+        **boundaries,
+    )
     scaled = solve_plate(
         RectangularGrid((0, 1, 3), (0, 2, 3), 0.5 * thickness_scale),
         tuple(k * k_scale for k in values),
+        backend=backend,
         **boundaries,
     )
     assert scaled.temperatures_k == pytest.approx(base.temperatures_k, rel=0, abs=2e-12)

@@ -69,7 +69,8 @@ def test_translation_and_length_scaling_preserve_mapped_watts(scale, offset):
 
 @pytest.mark.parametrize("transpose", [False, True])
 @pytest.mark.parametrize("factor", [0.25, 1, 8])
-def test_two_cell_heated_rational_system(transpose, factor):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_two_cell_heated_rational_system(backend, transpose, factor):
     # A=[[8,-2],[-2,5]] W/K, b=[4,8] W above the 300 K state.
     # det(A)=36; theta=(1,2) K. West/east loss is (6,6) W.
     matrix = ((F(8), F(-2)), (F(-2), F(5)))
@@ -84,7 +85,7 @@ def test_two_cell_heated_rational_system(transpose, factor):
     boundary = (
         dict(south_k=300, north_k=300) if transpose else dict(west_k=300, east_k=300)
     )
-    result = solve_plate(grid, 3, heaters=heaters, **boundary)
+    result = solve_plate(grid, 3, backend=backend, heaters=heaters, **boundary)
     assert map_heaters(grid, heaters) == pytest.approx((4 * factor, 8 * factor))
     assert result.temperatures_k == pytest.approx(
         (300 + factor, 300 + 2 * factor), rel=0, abs=2e-12
@@ -98,12 +99,14 @@ def test_two_cell_heated_rational_system(transpose, factor):
     ) == pytest.approx(12 * factor, rel=0, abs=1e-10)
 
 
-def test_heater_combines_with_flux_and_broad_convection():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_heater_combines_with_flux_and_broad_convection(backend):
     grid = RectangularGrid((0, 1), (0, 2), 0.5)
     # Broad G=4 W/K, 10 W heater minus 2 W west outward flux => 2 K rise.
     result = solve_plate(
         grid,
         3,
+        backend=backend,
         heaters=[RectangularHeater(0, 1, 0, 2, 10)],
         edge_flux_w_m2={"west": 2},
         face_convection=Convection(2, 300),

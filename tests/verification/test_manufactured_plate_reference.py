@@ -135,7 +135,8 @@ def inverse(matrix):
     return [row[n:] for row in augmented]
 
 
-def test_frozen_4_by_3_discrete_reference_and_corner_faces():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_frozen_4_by_3_discrete_reference_and_corner_faces(backend):
     nx, ny = 4, 3
     dx, dy = LX / nx, LY / ny
     gx, gy = KT * dy / dx, KT * dx / dy
@@ -184,7 +185,14 @@ def test_frozen_4_by_3_discrete_reference_and_corner_faces():
         list(map(float, powers)), rel=2e-14
     )
     result = solve_plate(
-        grid, 10, west_k=300, east_k=300, south_k=300, north_k=300, heaters=heaters
+        grid,
+        10,
+        backend=backend,
+        west_k=300,
+        east_k=300,
+        south_k=300,
+        north_k=300,
+        heaters=heaters,
     )
     assert result.temperatures_k == pytest.approx(
         [float(300 + v) for v in rise], rel=0, abs=tolerance_k

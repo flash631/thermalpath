@@ -14,7 +14,10 @@ from thermalpath import Convection, RectangularGrid, RectangularHeater, solve_pl
 @pytest.mark.parametrize("thickness", [F(1, 4), F(1, 2)])
 @pytest.mark.parametrize("source", [F(0), F(3)])
 @pytest.mark.parametrize("boundary", ["fixed", "insulated-fixed", "flux-film"])
-def test_heated_profiles_and_every_face(axis, edges, thickness, source, boundary):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_heated_profiles_and_every_face(
+    backend, axis, edges, thickness, source, boundary
+):
     # Derive q=-k*T' and q'=s/t without using the solver's matrix or residuals.
     length, conductivity, film = F(4), F(2), F(4)
     left, right, west_outward = F(320), F(300), F(-4)
@@ -79,7 +82,9 @@ def test_heated_profiles_and_every_face(axis, edges, thickness, source, boundary
         grid.y_edges_m[-1],
         float(source * 8),
     )
-    result = solve_plate(grid, float(conductivity), heaters=[heater], **boundaries)
+    result = solve_plate(
+        grid, float(conductivity), backend=backend, heaters=[heater], **boundaries
+    )
 
     # Nonnegative inverse: a uniform-source barrier bounds ||A^-1||_infinity.
     # Each cell receives at least one watt for source 1/(min(dx)*min(dy)).
@@ -126,7 +131,8 @@ def test_heated_profiles_and_every_face(axis, edges, thickness, source, boundary
     assert abs(result.balance.imbalance_w) <= grid.cell_count * power_budget
 
 
-def test_unequal_width_rational_system_and_nonzero_continuum_error():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_unequal_width_rational_system_and_nonzero_continuum_error(backend):
     # Widths 1 and 3 m, k*t=1 W/K, breadth 2 m: A=[[5,-1],[-1,7/3]].
     theta = (F(3), F(9))
     matrix = ((F(5), F(-1)), (F(-1), F(7, 3)))
@@ -136,6 +142,7 @@ def test_unequal_width_rational_system_and_nonzero_continuum_error():
     result = solve_plate(
         RectangularGrid((0, 1, 4), (0, 2), 0.5),
         2,
+        backend=backend,
         west_k=300,
         east_k=300,
         heaters=[RectangularHeater(0, 4, 0, 2, 24)],

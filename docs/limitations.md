@@ -67,7 +67,9 @@ mesh-convergence evidence. See [geometry limits](grid.md#verification-and-numeri
 
 D10 solves small source-free steady plates with constant isotropic conductivity,
 uniform thickness, insulated broad faces and fixed-temperature or insulated
-edges. It reuses a dense network solve with quadratic matrix storage. Entirely
+edges. Its default dense network solve uses quadratic matrix storage. D32 adds
+an explicit sparse backend with linearly growing matrix buffers on this grid;
+factorization fill and other allocations require additional memory. Entirely
 insulated plates lack a unique absolute temperature and are rejected. Different
 fixed temperatures on adjacent edges may create a corner singularity in the
 continuum solution. Extreme numerical scales and tiny temperature differences

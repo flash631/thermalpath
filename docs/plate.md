@@ -108,11 +108,25 @@ cell balances in rational arithmetic and check all sixteen signed powers.
 
 ## Numerical scope
 
-The implementation converts the cell connections to the existing dense steady
-network solver. For N cells, matrix storage is O(N squared) and the direct
-solve costs O(N cubed) operations. Use small grids. Cellwise material
-conductivity and flux/convection boundaries are supported; no sparse solve,
-heater mapping or transient plate API is provided yet.
+The implementation converts cell connections to the steady-network solver.
+The default `backend="dense"` uses quadratic matrix storage and is intended
+for small grids. Select `backend="sparse"` to assemble populated entries and
+use SciPy's SuperLU factorization:
+
+```python
+sparse_result = solve_plate(grid, 150, west_k=300, east_k=320, backend="sparse")
+```
+
+Both backends use the same geometry, face conductances, heater mapping,
+boundary conditions and result fields. With N = nx*ny cells, the reduced
+matrix has `5*N - 2*nx - 2*ny` populated entries: one diagonal per cell and
+two off-diagonal entries per internal face. Fixed and convective boundaries
+add diagonal contributions; prescribed flux and heater power enter the load.
+CSC matrix buffers therefore grow linearly with cell count. Factorization
+adds entries and work arrays, so matrix-buffer size is not peak memory.
+Heater mapping still examines each heater for each cell. No general runtime
+or capacity claim follows from sparse matrix storage. See the
+[bounded sparse plate evidence](devlog/day32.md).
 
 The small references use `2e-12 K` absolute temperature tolerance and `5e-11 W`
 absolute face-power tolerance, with zero relative tolerance. At 340 K the
@@ -134,5 +148,5 @@ the ideal cell midpoint distances; stored absolute centers may round slightly.
 An adjacent-representable boundary temperature test retains a nonzero cell
 balance when its temperature rise rounds away. A successful return is not an
 accuracy certificate. No general mesh-convergence or physical validation claim
-is made. Detailed plate diagnostics and spatial refinement remain separate
-roadmap increments.
+is made. See [plate diagnostics](plate_diagnostics.md) and the
+[frozen spatial refinement study](plate_refinement.md) for their separate evidence.

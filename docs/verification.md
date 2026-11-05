@@ -402,6 +402,41 @@ Reproduce the targeted numerical and domain checks with:
 python -m pytest tests/unit/test_networks.py tests/unit/test_sparse_networks.py tests/verification/test_network_reference.py tests/verification/test_sparse_network_reference.py
 ```
 
+## D32 sparse plate verification
+
+The D10-D16 analytical and rational plate checks now run with both backends.
+Their existing tolerances are unchanged. They cover unequal cells, rotated
+and reversed profiles, material contrasts, fixed/flux/film boundaries,
+broad-face exchange, heaters, corner faces and physical/linear balances.
+The deliberately corrupted dense-solver fixture remains separate; a sparse
+fixture also preserves opposite local errors when their global sum is zero.
+
+The D17 report runs the same 4x3, 8x6 and 16x12 family with each backend.
+The reference uses independently integrated rational loads and a separable
+sine basis, without calling either production solver. All original error,
+power and observed-order checks remain in place.
+
+`test_sparse_plate_reference.py` also checks a linear field on 8x6, 32x24
+and 64x48 grids. The plate is 0.06 by 0.04 m, 0.002 m thick, with
+k=10 W/(m K), west/east temperatures 300/320 K and other faces insulated.
+Direct integration gives `T=300+20*x/0.06 K` and horizontal face-power
+magnitude `k*t*dy*20/0.06 W`. The fixed absolute budgets are 2e-8 K for
+temperature, 2e-9 W for each face/cell/matrix residual and 2e-8 W for total
+imbalance. These are finite regression thresholds, not certified error bounds.
+
+Each storage test requires `5*N-2*nx-2*ny` populated entries and no more than
+`88*N` CSC buffer bytes, allowing 64-bit indices. It blocks dense solves,
+sparse-to-dense conversion and N-by-N NumPy allocation. The mixed-boundary
+compatibility case uses 2e-10 K and 2e-9 W absolute budgets. Agreement between
+backends is numerical comparison; the analytical and modal fixtures provide
+the independent references.
+
+```text
+python -m pytest tests/unit/test_sparse_plate.py tests/verification/test_sparse_plate_reference.py tests/verification/test_plate_reference.py tests/verification/test_plate_material_reference.py tests/verification/test_plate_boundary_reference.py tests/verification/test_plate_balance_reference.py tests/verification/test_plate_1d_reference.py tests/verification/test_manufactured_plate_reference.py tests/verification/test_heater_reference.py tests/verification/test_plate_refinement_reference.py
+```
+
+See the [D32 execution record](devlog/day32.md) for measured values and limits.
+
 The unit cases cover unchanged domain checks, invalid backend selection,
 factorization failure, fixed-only networks, one-factor reuse and accepted,
 rejected or failed optional corrections. These are synthetic numerical checks.

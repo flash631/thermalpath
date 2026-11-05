@@ -3,6 +3,7 @@
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from typing import Literal
 
 from thermalpath.boundaries import Convection
 from thermalpath.grid import RectangularGrid
@@ -50,8 +51,9 @@ def solve_plate(
     edge_convection: Mapping[str, Convection] | None = None,
     face_convection: Convection | None = None,
     heaters: Sequence[RectangularHeater] = (),
+    backend: Literal["dense", "sparse"] = "dense",
 ) -> PlateResult:
-    """Solve a small steady plate with prescribed or convective boundaries.
+    """Solve a steady plate with prescribed or convective boundaries.
 
     Parameters
     ----------
@@ -79,6 +81,9 @@ def solve_plate(
     heaters : sequence of RectangularHeater, optional
         Uniform nonnegative heat inputs integrated over cell/footprint overlaps.
         Every footprint must lie fully inside the plate; overlapping inputs add.
+    backend : {"dense", "sparse"}, optional
+        Dense NumPy solve by default. Select sparse explicitly for SciPy's
+        sparse assembly and SuperLU solve through the steady-network solver.
 
     Returns
     -------
@@ -90,8 +95,8 @@ def solve_plate(
     ------
     ValueError
         Inputs are invalid, no fixed or positive-convection anchor exists,
-        a conductance is outside positive finite float range, or the
-        underlying steady solve fails.
+        a conductance is outside positive finite float range, the backend
+        is invalid, or the underlying steady solve fails.
 
     Notes
     -----
@@ -103,9 +108,10 @@ def solve_plate(
     without a through-thickness resistance. Heater watts have no extra
     thickness factor. There is no storage. See docs/sources.md and
     docs/plate_boundaries.md for conventions and limits.
-    Reuses the dense network solver: memory grows quadratically with cell
-    count. Intended for small grids. Finite results do not certify accuracy,
-    mesh convergence or physical validity. See docs/plate.md.
+    Reuses the steady-network solver. Dense matrix storage grows quadratically
+    with cell count; sparse matrix storage follows the populated entries.
+    Sparse factorization can require additional storage. Finite results do not
+    certify accuracy, mesh convergence or physical validity. See docs/plate.md.
     """
     if not isinstance(grid, RectangularGrid):
         raise ValueError("grid must be a RectangularGrid")
@@ -263,7 +269,7 @@ def solve_plate(
             "at least one fixed-temperature or positive-convection anchor is required; "
             "balanced unanchored plate has nonunique absolute temperature"
         )
-    result = solve_steady(Network(tuple(nodes), tuple(links)))
+    result = solve_steady(Network(tuple(nodes), tuple(links)), backend=backend)
     for link_id, cell, side, neighbor in faces:
         power = result.link_powers_w[link_id]
         powers[cell][side] = power

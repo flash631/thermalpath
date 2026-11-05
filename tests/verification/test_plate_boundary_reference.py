@@ -12,7 +12,8 @@ from thermalpath import Convection, RectangularGrid, solve_plate
 @pytest.mark.parametrize("reverse", [False, True])
 @pytest.mark.parametrize("flux", [10, -10])
 @pytest.mark.parametrize("thickness", [0.25, 0.75])
-def test_flux_to_film_continuum(axis, reverse, flux, thickness):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_flux_to_film_continuum(backend, axis, reverse, flux, thickness):
     axial, transverse = (0, 1, 3), (0, 1, 4)
     grid = RectangularGrid(
         axial if axis == "x" else transverse,
@@ -24,6 +25,7 @@ def test_flux_to_film_continuum(axis, reverse, flux, thickness):
     result = solve_plate(
         grid,
         2,
+        backend=backend,
         edge_flux_w_m2={incoming: -flux},
         edge_convection={outgoing: Convection(5, 300)},
     )
@@ -48,23 +50,28 @@ def test_flux_to_film_continuum(axis, reverse, flux, thickness):
 
 
 @pytest.mark.parametrize("side", ["west", "east", "south", "north"])
-def test_each_film_alone_anchors_constant_field(side):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_each_film_alone_anchors_constant_field(backend, side):
     grid = RectangularGrid((0, 1, 3), (0, 2, 3), 0.5)
     result = solve_plate(
-        grid, (2, 4, 8, 16), edge_convection={side: Convection(7, 321)}
+        grid, (2, 4, 8, 16), backend=backend, edge_convection={side: Convection(7, 321)}
     )
     assert result.temperatures_k == pytest.approx([321] * 4, rel=0, abs=2e-12)
     assert max(abs(q) for p in result.face_powers_w for q in p) < 2e-10
 
 
-def test_broad_faces_alone_anchor_unequal_grid():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_broad_faces_alone_anchor_unequal_grid(backend):
     grid = RectangularGrid((0, 1, 3), (0, 2, 3), 0.5)
-    result = solve_plate(grid, (2, 4, 8, 16), face_convection=Convection(3, 315))
+    result = solve_plate(
+        grid, (2, 4, 8, 16), backend=backend, face_convection=Convection(3, 315)
+    )
     assert result.temperatures_k == pytest.approx([315] * 4, rel=0, abs=2e-12)
     assert result.broad_face_powers_w == pytest.approx([0] * 4, rel=0, abs=5e-11)
 
 
-def test_two_films_with_unequal_material_layers():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_two_films_with_unequal_material_layers(backend):
     grid = RectangularGrid((0, 0.5, 2, 3, 5), (0, 1, 3), 0.25)
     # Series continuum resistance per unit area: 1/2 + 2/2 + 3/6 + 1/4.
     flux = F(60) / (F(1, 2) + 1 + F(1, 2) + F(1, 4))
@@ -80,6 +87,7 @@ def test_two_films_with_unequal_material_layers():
     result = solve_plate(
         grid,
         (2, 2, 6, 6) * 2,
+        backend=backend,
         edge_convection={"west": Convection(2, 360), "east": Convection(4, 300)},
     )
     assert result.temperatures_k == pytest.approx(
@@ -92,10 +100,15 @@ def test_two_films_with_unequal_material_layers():
 
 
 @pytest.mark.parametrize("thickness", [0.25, 0.5, 1])
-def test_broad_coefficient_uses_plan_area_without_factor_two(thickness):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_broad_coefficient_uses_plan_area_without_factor_two(backend, thickness):
     grid = RectangularGrid((0, 2), (0, 3), thickness)
     result = solve_plate(
-        grid, 4, edge_flux_w_m2={"west": -20}, face_convection=Convection(5, 300)
+        grid,
+        4,
+        backend=backend,
+        edge_flux_w_m2={"west": -20},
+        face_convection=Convection(5, 300),
     )
     # Input 20*(3*t) W, projected area 6 m2, h_sum=5 -> G=30 W/K.
     assert result.temperatures_k == pytest.approx(
@@ -106,12 +119,17 @@ def test_broad_coefficient_uses_plan_area_without_factor_two(thickness):
     )
 
 
-def test_large_edge_coefficient_tends_to_fixed_geometric_edge():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_large_edge_coefficient_tends_to_fixed_geometric_edge(backend):
     grid = RectangularGrid((0, 1, 3), (0, 2), 0.5)
-    fixed = solve_plate(grid, 2, west_k=360, east_k=300)
+    fixed = solve_plate(grid, 2, backend=backend, west_k=360, east_k=300)
     for h in (1e3, 1e6, 1e12, 1e300):
         result = solve_plate(
-            grid, 2, west_k=360, edge_convection={"east": Convection(h, 300)}
+            grid,
+            2,
+            backend=backend,
+            west_k=360,
+            edge_convection={"east": Convection(h, 300)},
         )
         # q=60/(3/2+1/h), so |T_h-T_fixed| <= q/h <= 40/h.
         for actual, reference in zip(
@@ -120,27 +138,38 @@ def test_large_edge_coefficient_tends_to_fixed_geometric_edge():
             assert abs(actual - reference) <= 40 / h + 2e-12
 
 
-def test_small_edge_coefficient_tends_to_insulation():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_small_edge_coefficient_tends_to_insulation(backend):
     grid = RectangularGrid((0, 1, 3), (0, 2), 0.5)
     for h in (1e-3, 1e-6, 1e-12):
         result = solve_plate(
-            grid, 2, west_k=360, edge_convection={"east": Convection(h, 300)}
+            grid,
+            2,
+            backend=backend,
+            west_k=360,
+            edge_convection={"east": Convection(h, 300)},
         )
         # q <= 60*h; largest center distance from the fixed edge is 2 m.
         assert max(abs(t - 360) for t in result.temperatures_k) <= 60 * h + 2e-12
 
 
-def test_large_broad_coefficient_tends_to_ambient():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_large_broad_coefficient_tends_to_ambient(backend):
     grid = RectangularGrid((0, 2), (0, 3), 0.5)
     for h in (1, 1e3, 1e6, 1e12):
         result = solve_plate(
-            grid, 4, edge_flux_w_m2={"west": -20}, face_convection=Convection(h, 300)
+            grid,
+            4,
+            backend=backend,
+            edge_flux_w_m2={"west": -20},
+            face_convection=Convection(h, 300),
         )
         assert result.temperatures_k[0] == pytest.approx(300 + 5 / h, rel=0, abs=2e-12)
     # No power accuracy claim at enormous h: subtracting near-equal K loses digits.
 
 
-def test_mixed_two_cell_exact_rational_balance():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_mixed_two_cell_exact_rational_balance(backend):
     grid = RectangularGrid((0, 1, 3), (0, 3), 0.5)
     temperatures = (F(138548, 467), F(138887, 467))
     matrix = ((29, -9), (-9, 35))
@@ -162,6 +191,7 @@ def test_mixed_two_cell_exact_rational_balance():
     result = solve_plate(
         grid,
         (2, 4),
+        backend=backend,
         south_k=310,
         edge_convection={"west": Convection(4, 300)},
         edge_flux_w_m2={"east": -10, "north": 2},

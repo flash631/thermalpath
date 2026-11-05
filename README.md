@@ -20,6 +20,9 @@ combined broad-face convection; see [the plate API](docs/plate.md),
 [boundary conventions](docs/plate_boundaries.md). Rectangular heater inputs
 use [cell overlap integration](docs/sources.md). Each solved plate reports
 [physical power balance and separate matrix residuals](docs/plate_diagnostics.md).
+Use `solve_plate(..., backend="sparse")` for sparse matrix assembly and solving;
+the dense backend remains the default. The [sparse plate record](docs/devlog/day32.md)
+reports independent reference checks and bounded storage measurements.
 A synthetic [heat-spreader study](docs/case_study.md) compares three plate
 thicknesses under nominal and stress loads, with numerical checks and a
 qualified recommendation for further evaluation. Reports

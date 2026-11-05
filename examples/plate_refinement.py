@@ -3,6 +3,7 @@
 import json
 import os
 from math import fsum, log2, sqrt
+from typing import Literal
 
 for variable in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS"):
     os.environ[variable] = "1"
@@ -15,8 +16,13 @@ else:
     import manufactured_plate as benchmark
 
 
-def refinement_report() -> dict:
+def refinement_report(*, backend: Literal["dense", "sparse"] = "dense") -> dict:
     """Return the fixed synthetic study, with area-normalized error norms in K.
+
+    Parameters
+    ----------
+    backend : {"dense", "sparse"}, optional
+        Steady plate solver backend. The default preserves the dense report.
 
     Notes
     -----
@@ -45,6 +51,7 @@ def refinement_report() -> dict:
             south_k=benchmark.BOUNDARY_K,
             north_k=benchmark.BOUNDARY_K,
             heaters=heaters,
+            backend=backend,
         )
         cells = []
         for cell, computed in enumerate(result.temperatures_k):

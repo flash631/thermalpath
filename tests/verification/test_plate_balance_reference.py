@@ -11,7 +11,8 @@ from thermalpath import Convection, RectangularGrid, RectangularHeater, solve_pl
 
 @pytest.mark.parametrize("transpose", [False, True])
 @pytest.mark.parametrize("factor", [0.25, 1, 8])
-def test_two_cell_balance_and_actual_matrix_residual(transpose, factor):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_two_cell_balance_and_actual_matrix_residual(backend, transpose, factor):
     # Hand-derived A=[[8,-2],[-2,5]], det=36, inverse=[[5,2],[2,8]]/36.
     matrix = ((F(8), F(-2)), (F(-2), F(5)))
     theta = (F(1), F(2))
@@ -26,6 +27,7 @@ def test_two_cell_balance_and_actual_matrix_residual(transpose, factor):
     result = solve_plate(
         RectangularGrid(x, y, 0.5),
         3,
+        backend=backend,
         heaters=[RectangularHeater(*bounds, 12 * factor)],
         **boundary,
     )
@@ -62,10 +64,12 @@ def test_opposite_local_errors_survive_zero_global_balance(monkeypatch):
 
 
 @pytest.mark.parametrize("power", [1e-20, 5e-324])
-def test_zero_matrix_residual_does_not_hide_physical_heating(power):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_zero_matrix_residual_does_not_hide_physical_heating(backend, power):
     result = solve_plate(
         RectangularGrid((0, 1), (0, 1), 1),
         1,
+        backend=backend,
         west_k=300,
         heaters=[RectangularHeater(0, 1, 0, 1, power)],
     )
@@ -76,10 +80,12 @@ def test_zero_matrix_residual_does_not_hide_physical_heating(power):
 
 
 @pytest.mark.parametrize("flux", [-2, 2])
-def test_signed_edge_and_broad_exchange(flux):
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_signed_edge_and_broad_exchange(backend, flux):
     result = solve_plate(
         RectangularGrid((0, 1), (0, 2), 0.5),
         3,
+        backend=backend,
         heaters=[RectangularHeater(0, 1, 0, 2, 10)],
         edge_flux_w_m2={"west": flux},
         face_convection=Convection(2, 300),
@@ -92,10 +98,12 @@ def test_signed_edge_and_broad_exchange(flux):
     assert result.balance.imbalance_w == 0
 
 
-def test_cooling_broad_faces_have_negative_outflow():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_cooling_broad_faces_have_negative_outflow(backend):
     result = solve_plate(
         RectangularGrid((0, 1), (0, 1), 1),
         1,
+        backend=backend,
         west_k=300,
         face_convection=Convection(2, 320),
     )
@@ -105,11 +113,13 @@ def test_cooling_broad_faces_have_negative_outflow():
     assert result.balance.imbalance_w == 0
 
 
-def test_boundary_rounding_residual_is_preserved():
+@pytest.mark.parametrize("backend", ["dense", "sparse"])
+def test_boundary_rounding_residual_is_preserved(backend):
     warmer = math.nextafter(300.0, math.inf)
     result = solve_plate(
         RectangularGrid((0, 1), (0, 1), 1),
         1,
+        backend=backend,
         west_k=300,
         east_k=warmer,
     )

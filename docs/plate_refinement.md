@@ -1,6 +1,10 @@
 # Three-grid spatial refinement
 
 Run `python examples/plate_refinement.py` to reproduce this synthetic study.
+The default uses the dense backend. To reproduce the same frozen inputs with
+the sparse backend, call `refinement_report(backend="sparse")` from
+`examples.plate_refinement`. Both are checked against the independent modal
+reference with the same tolerances; see [D32](devlog/day32.md).
 It uses the [manufactured polynomial](manufactured_plate.md) frozen in D16:
 `T=300+320 X(1-X)Y(1-Y)` K on a 0.06 by 0.04 m plate, with thickness
 0.002 m, conductivity 10 W/(m K), and all edges fixed at 300 K. There is no
