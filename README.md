@@ -123,6 +123,10 @@ the depth-averaged plate formulation.
 
 For transient network inputs, interval load conventions, and a runnable example,
 see [backward-Euler networks](docs/transient_networks.md).
+`solve_transient(..., backend="sparse")` reuses one sparse factorization across
+consecutive exactly equal computed time steps within a call. The dense default
+is unchanged. See the [verification record](docs/devlog/day33.md) for reuse,
+independent time-response checks and storage limits.
 For the steady source-free plate, run `python examples/steady_plate.py`.
 Its [independent references](docs/plate.md#independent-references) cover constant
 fields, unequal-cell linear profiles and a rational two-dimensional case.

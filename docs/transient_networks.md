@@ -1,6 +1,6 @@
 # Backward-Euler thermal networks
 
-`solve_transient` integrates a small lumped network with constant conductances,
+`solve_transient` integrates a lumped network with constant conductances,
 positive heat capacities, and constant prescribed temperatures. Inputs use
 seconds, watts, joules per kelvin, watts per kelvin, and absolute kelvin.
 Positive load adds heat. A negative load extracts heat.
@@ -48,6 +48,37 @@ Run `python examples/transient_network.py` for the complete table. Results have
 `times_s` and `temperatures_k`, including the initial state. Each temperature
 map is a separate copy, ordered like the input nodes.
 
+## Sparse solving and factor reuse
+
+The default is `backend="dense"`. Pass `backend="sparse"` to assemble populated
+matrix entries and use SciPy's sparse LU factorization. The same input maps,
+loads, time grid and result fields apply to both backends. SciPy is already a
+required dependency.
+
+```python
+sparse_result = solve_transient(
+    network,
+    {"a": 2, "b": 3},
+    {"a": 300, "b": 300},
+    [0, 0.5, 1, 1.5],
+    [{"a": 10, "b": 0}, {"a": 0, "b": 6}, {"a": -2, "b": 1}],
+    backend="sparse",
+)
+```
+
+This call factors the step matrix once and solves three right-hand sides.
+Changing the load changes the right-hand side only. The immutable network and
+copied capacities remain constant during a call. A factor is reused only when
+the computed step size is exactly equal to the preceding step size. No
+tolerance merges nearby sizes. Decimal-looking grid spacings can have slightly
+different binary64 differences and therefore cause additional factorizations.
+
+A changed step size discards the cached factor; returning to an earlier size
+factors again. Every new call starts without a factor, so changes to conductance,
+capacity, topology, node order or fixed-node selection cannot reuse a previous
+call's operator. This deliberately keeps only one cached factor. The dense path
+retains a separate NumPy solve per step. An all-fixed network needs no solve.
+
 ## Update equation and checks
 
 Let `C` be the diagonal matrix of nonfixed-node heat capacities [J/K], `L` the
@@ -81,7 +112,15 @@ linear stability does not mean that a large step is accurate. See
 
 ## Limits
 
-The dense binary64 solve is intended for small networks. Overflow, arithmetic
+The dense binary64 solve is intended for small networks. Sparse assembly avoids
+an n-by-n dense matrix, but its LU factors can have additional nonzero entries.
+One cached factor does not bound total memory: assembly objects, work arrays,
+input loads and the full output history also consume memory. Output storage
+grows with the number of nodes times the number of requested times. There is
+no automatic node/time budget or streaming result mode in this library API.
+Use bounded inputs that fit the available resources.
+
+Overflow, arithmetic
 underflow detected during assembly, numerical singularity, and nonfinite or
 nonpositive temperatures raise `ValueError`. Extreme scale ratios can erase a
 capacity contribution and produce a numerically singular insulated system.
@@ -93,3 +132,6 @@ The result provides temperatures only. Use `transient_energy_balance` to account
 for a step with the same capacities and interval loads. Neither function supplies
 a general time-error estimate or physical validation result. No experimental
 data were used. The JSON case schema and steady CLI are unchanged.
+
+See the [sparse transient verification record](devlog/day33.md) for exact
+references, factor-lifetime tests and measured matrix storage.

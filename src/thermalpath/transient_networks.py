@@ -1,9 +1,12 @@
-"""Backward-Euler integration of small constant-conductance networks."""
+"""Dense and sparse backward-Euler constant-conductance network integration."""
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
+from scipy.sparse import dok_array
+from scipy.sparse.linalg import splu
 
 from thermalpath.models import Network, _scalar
 
@@ -42,6 +45,8 @@ def solve_transient(
     initial_temperatures_k: Mapping[str, float],
     times_s: Sequence[float],
     interval_powers_w: Sequence[Mapping[str, float]] | None = None,
+    *,
+    backend: Literal["dense", "sparse"] = "dense",
 ) -> TransientResult:
     """Integrate temperatures with backward Euler and piecewise constant loads.
 
@@ -62,6 +67,10 @@ def solve_transient(
         from times_s[i] up to times_s[i+1], replacing all Node.power_w values.
         Positive means heating; negative means extraction. None uses the
         network's constant loads on every interval. No interpolation is used.
+    backend : {"dense", "sparse"}, optional
+        Dense NumPy solve by default. Sparse assembly and SciPy SuperLU
+        factorization are explicit. One factor is reused for consecutive
+        exactly equal computed step sizes within this call only.
 
     Returns
     -------
@@ -71,7 +80,7 @@ def solve_transient(
     Raises
     ------
     ValueError
-        Invalid maps, scalars, time grid or load count; unrepresentable time
+        Invalid backend, maps, scalars, time grid or load count; unrepresentable time
         differences or assembled system; numerical singularity; nonpositive
         or nonfinite calculated temperatures.
 
@@ -79,11 +88,17 @@ def solve_transient(
     -----
     Solves (C/dt + L_uu) T_new = (C/dt) T_old + P - L_uf T_fixed.
     Positive capacity gives a unique update without a fixed boundary in exact
-    arithmetic. Uses dense binary64 solves with no accuracy certificate.
+    arithmetic. Both backends use binary64 with no accuracy certificate.
+    Sparse reuse ends on a changed step size or a new call. Loads change
+    only the right-hand side; conductances, capacities and boundaries are
+    constant within a call. One cached factor bounds cache growth, but LU
+    fill depends on topology and result history grows with nodes and times.
     Negative loads can produce invalid temperatures. Positivity checks cover
     computed grid states only, not the underlying continuous trajectory.
     Use transient_energy_balance with the same interval loads for step accounting.
     """
+    if not isinstance(backend, str) or backend not in ("dense", "sparse"):
+        raise ValueError("backend must be 'dense' or 'sparse'")
     if not isinstance(network, Network):
         raise ValueError("network must be a Network")
     unknown = [n for n in network.nodes if n.fixed_temperature_k is None]
@@ -115,8 +130,11 @@ def solve_transient(
     }
     rows = [temperatures.copy()]
     indices = {n.id: i for i, n in enumerate(unknown)}
-    matrix = np.zeros((len(unknown), len(unknown)))
+    shape = (len(unknown), len(unknown))
+    matrix = dok_array(shape, dtype=float) if backend == "sparse" else np.zeros(shape)
     boundary = np.zeros(len(unknown))
+    factor = None
+    factored_dt = None
     try:
         with np.errstate(over="raise", invalid="raise", divide="raise", under="raise"):
             for link in network.links:
@@ -130,19 +148,30 @@ def solve_transient(
                             boundary[i] += (
                                 np.float64(link.conductance_w_k) * temperatures[b]
                             )
+            if backend == "sparse":
+                matrix = matrix.tocsc()
             capacities = np.array([capacity[n.id] for n in unknown])
             old = np.array([initial[n.id] for n in unknown])
             for start, end, load in zip(times, times[1:], loads, strict=False):
                 dt = end - start
                 if unknown:
                     storage = capacities / dt
-                    system = matrix + np.diag(storage)
                     rhs = (
                         storage * old
                         + boundary
                         + np.array([load[n.id] for n in unknown])
                     )
-                    old = np.linalg.solve(system, rhs)
+                    if backend == "sparse":
+                        if factor is None or dt != factored_dt:
+                            factor = None
+                            system = matrix.copy()
+                            system.setdiag(matrix.diagonal() + storage)
+                            factor = splu(system)
+                            factored_dt = dt
+                        old = factor.solve(rhs)
+                    else:
+                        system = matrix + np.diag(storage)
+                        old = np.linalg.solve(system, rhs)
                     if not np.all(np.isfinite(old)) or np.any(old <= 0):
                         raise ValueError(
                             "calculated temperatures must be finite and positive"
@@ -151,6 +180,6 @@ def solve_transient(
                         (n.id, float(old[i])) for i, n in enumerate(unknown)
                     )
                 rows.append(temperatures.copy())
-    except (FloatingPointError, np.linalg.LinAlgError) as exc:
+    except (FloatingPointError, np.linalg.LinAlgError, RuntimeError) as exc:
         raise ValueError("transient system is singular or outside float range") from exc
     return TransientResult(times, tuple(rows))

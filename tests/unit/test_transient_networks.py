@@ -1,11 +1,14 @@
 """Domain, interval semantics, boundaries, and numerical failure tests."""
 
 from fractions import Fraction
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
-from thermalpath import Link, Network, Node, solve_transient
+from thermalpath import Link, Network, Node, solve_transient, transient_networks
+
+pytestmark = pytest.mark.parametrize("backend", ["dense", "sparse"])
 
 
 def isolated(**overrides):
@@ -19,9 +22,9 @@ def isolated(**overrides):
     return solve_transient(**arguments)
 
 
-def test_constant_and_piecewise_isolated_loads():
-    assert [r["a"] for r in isolated().temperatures_k] == [300, 301, 303]
-    result = isolated(interval_powers_w=[{"a": 4}, {"a": -2}])
+def test_constant_and_piecewise_isolated_loads(backend):
+    assert [r["a"] for r in isolated(backend=backend).temperatures_k] == [300, 301, 303]
+    result = isolated(interval_powers_w=[{"a": 4}, {"a": -2}], backend=backend)
     assert result.times_s == (0, 1, 3)
     assert [r["a"] for r in result.temperatures_k] == [300, 302, 300]
 
@@ -44,9 +47,9 @@ def test_constant_and_piecewise_isolated_loads():
         {"a": Fraction(1, 10**400)},
     ],
 )
-def test_invalid_node_maps(name, value):
+def test_invalid_node_maps(backend, name, value):
     with pytest.raises(ValueError):
-        isolated(**{name: value})
+        isolated(**{name: value}, backend=backend)
 
 
 @pytest.mark.parametrize(
@@ -66,9 +69,9 @@ def test_invalid_node_maps(name, value):
         [0, 1, 1],
     ],
 )
-def test_invalid_times(times):
+def test_invalid_times(backend, times):
     with pytest.raises(ValueError):
-        isolated(times_s=times)
+        isolated(times_s=times, backend=backend)
 
 
 @pytest.mark.parametrize(
@@ -86,17 +89,17 @@ def test_invalid_times(times):
         [{"a": 2}, {"a": float("inf")}],
     ],
 )
-def test_invalid_interval_loads(loads):
+def test_invalid_interval_loads(backend, loads):
     with pytest.raises(ValueError):
-        isolated(interval_powers_w=loads)
+        isolated(interval_powers_w=loads, backend=backend)
 
 
-def test_invalid_network():
+def test_invalid_network(backend):
     with pytest.raises(ValueError, match="Network"):
-        isolated(network=None)
+        isolated(network=None, backend=backend)
 
 
-def test_inputs_and_rows_are_independent():
+def test_inputs_and_rows_are_independent(backend):
     capacities = {"a": 2}
     initial = {"a": 300}
     loads = [{"a": 4}, {"a": -2}]
@@ -104,6 +107,7 @@ def test_inputs_and_rows_are_independent():
         heat_capacities_j_k=capacities,
         initial_temperatures_k=initial,
         interval_powers_w=loads,
+        backend=backend,
     )
     result.temperatures_k[1]["a"] = 1
     assert result.temperatures_k[0] == initial == {"a": 300}
@@ -111,60 +115,69 @@ def test_inputs_and_rows_are_independent():
     assert capacities == {"a": 2} and loads == [{"a": 4}, {"a": -2}]
 
 
-def test_fixed_nodes_and_all_fixed_network():
+def test_fixed_nodes_and_all_fixed_network(backend):
     network = Network(
         (Node("hot", fixed_temperature_k=400), Node("cold", fixed_temperature_k=300)),
         (Link("q", "hot", "cold", 2),),
     )
-    result = solve_transient(network, {}, {}, [0, 1, 2], [{}, {}])
+    result = solve_transient(network, {}, {}, [0, 1, 2], [{}, {}], backend=backend)
     assert result.temperatures_k == ({"hot": 400, "cold": 300},) * 3
     with pytest.raises(ValueError, match="nonfixed"):
-        solve_transient(network, {"hot": 1}, {}, [0, 1])
+        solve_transient(network, {"hot": 1}, {}, [0, 1], backend=backend)
 
 
-def test_disconnected_nodes_are_allowed():
+def test_disconnected_nodes_are_allowed(backend):
     network = Network(
         (Node("a", power_w=2), Node("b"), Node("fixed", fixed_temperature_k=280))
     )
-    result = solve_transient(network, {"a": 2, "b": 1}, {"a": 300, "b": 310}, [5, 7])
+    result = solve_transient(
+        network, {"a": 2, "b": 1}, {"a": 300, "b": 310}, [5, 7], backend=backend
+    )
     assert result.temperatures_k[-1] == {"a": 302, "b": 310, "fixed": 280}
 
 
 @pytest.mark.parametrize("power", [-600, -1000])
-def test_nonpositive_temperature_rejected(power):
+def test_nonpositive_temperature_rejected(backend, power):
     with pytest.raises(ValueError, match="positive"):
-        isolated(interval_powers_w=[{"a": power}, {"a": 0}])
+        isolated(interval_powers_w=[{"a": power}, {"a": 0}], backend=backend)
 
 
 @pytest.mark.parametrize(
     "capacities,times",
     [({"a": 1e308}, [0, 1e-300]), ({"a": 1e-300}, [0, 1e300]), ({"a": 1e308}, [0, 1])],
 )
-def test_storage_arithmetic_range(capacities, times):
+def test_storage_arithmetic_range(backend, capacities, times):
     with pytest.raises(ValueError, match="float range"):
-        isolated(heat_capacities_j_k=capacities, times_s=times)
+        isolated(heat_capacities_j_k=capacities, times_s=times, backend=backend)
 
 
-def test_boundary_arithmetic_range():
+def test_boundary_arithmetic_range(backend):
     network = Network(
         (Node("a"), Node("b", fixed_temperature_k=300)), (Link("ab", "a", "b", 1e308),)
     )
     with pytest.raises(ValueError, match="float range"):
-        isolated(network=network)
+        isolated(network=network, backend=backend)
 
 
-def test_lost_capacity_can_make_insulated_matrix_singular():
+def test_lost_capacity_can_make_insulated_matrix_singular(backend):
     network = Network((Node("a"), Node("b")), (Link("ab", "a", "b", 1e20),))
     with pytest.raises(ValueError, match="singular"):
-        solve_transient(network, {"a": 1, "b": 1}, {"a": 300, "b": 300}, [0, 1])
+        solve_transient(
+            network, {"a": 1, "b": 1}, {"a": 300, "b": 300}, [0, 1], backend=backend
+        )
 
 
-def test_nonfinite_solver_output_is_rejected(monkeypatch):
+def test_nonfinite_solver_output_is_rejected(backend, monkeypatch):
     monkeypatch.setattr(np.linalg, "solve", lambda a, b: np.array([np.nan]))
+    monkeypatch.setattr(
+        transient_networks,
+        "splu",
+        lambda matrix: SimpleNamespace(solve=lambda rhs: np.array([np.nan])),
+    )
     with pytest.raises(ValueError, match="finite"):
-        isolated()
+        isolated(backend=backend)
 
 
-def test_rounded_away_temperature_rise_is_not_an_accuracy_claim():
-    result = isolated(interval_powers_w=[{"a": 1e-20}, {"a": 1e-20}])
+def test_rounded_away_temperature_rise_is_not_an_accuracy_claim(backend):
+    result = isolated(interval_powers_w=[{"a": 1e-20}, {"a": 1e-20}], backend=backend)
     assert result.temperatures_k[-1]["a"] == 300

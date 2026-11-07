@@ -8,9 +8,11 @@ import pytest
 
 from thermalpath import Link, Network, Node, solve_transient, transient_energy_balance
 
+pytestmark = pytest.mark.parametrize("backend", ["dense", "sparse"])
+
 
 @pytest.mark.parametrize("reverse", [False, True])
-def test_piecewise_rational_energy_ledger(reverse):
+def test_piecewise_rational_energy_ledger(backend, reverse):
     network = Network(
         (Node("a"), Node("b"), Node("sink", fixed_temperature_k=300)),
         tuple(
@@ -26,7 +28,12 @@ def test_piecewise_rational_energy_ledger(reverse):
     powers = [(10, 0), (0, 6), (-2, 1)]
     loads = [{"a": p, "b": q} for p, q in powers]
     result = solve_transient(
-        network, {"a": 2, "b": 3}, {"a": 300, "b": 300}, [0, 1, 3, 3.5], loads
+        network,
+        {"a": 2, "b": 3},
+        {"a": 300, "b": 300},
+        [0, 1, 3, 3.5],
+        loads,
+        backend=backend,
     )
     x, y = F(0), F(0)
     for i, (h, (p, q)) in enumerate(zip(steps, powers, strict=True)):
@@ -64,7 +71,7 @@ def test_piecewise_rational_energy_ledger(reverse):
 
 
 @pytest.mark.parametrize("coupled", [False, True])
-def test_four_step_sizes_against_decimal_exponential(coupled):
+def test_four_step_sizes_against_decimal_exponential(backend, coupled):
     # Both fixtures have lambda*t_final=1 and initial modal amplitude 10 K.
     # Scalar heating: tau=20 s, equilibrium 310 K, start 300 K.
     # Insulated pair: C=2 J/K, G=1 W/K, difference mode rate=1/s.
@@ -85,7 +92,11 @@ def test_four_step_sizes_against_decimal_exponential(coupled):
     for count in (5, 10, 20, 40):
         dt = end / count
         result = solve_transient(
-            network, capacities, initial, [i * dt for i in range(count + 1)]
+            network,
+            capacities,
+            initial,
+            [i * dt for i in range(count + 1)],
+            backend=backend,
         )
         numerical = result.temperatures_k[-1]["a"]
         discrete_mode = 10 * F(count, count + 1) ** count

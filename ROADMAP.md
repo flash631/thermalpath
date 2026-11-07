@@ -136,3 +136,8 @@ features require appropriate analytical references, tests, and documented limits
   analytical, rational and three-grid modal references with unchanged tolerances;
   verify bounded sparse storage and retain physical/linear residual diagnostics.
   Completion date: 2026-11-05. Evidence: docs/devlog/day32.md.
+- [x] D33 | transient | Explicit sparse network integration with factor reuse.
+  Acceptance: preserve dense behavior; verify exact reuse boundaries, rational
+  variable-load updates, energy ledgers, continuous-mode refinement and bounded
+  sparse assembly without dense conversion. Retain measured error and limits.
+  Completion date: 2026-11-07. Evidence: docs/devlog/day33.md.

@@ -441,3 +441,37 @@ The unit cases cover unchanged domain checks, invalid backend selection,
 factorization failure, fixed-only networks, one-factor reuse and accepted,
 rejected or failed optional corrections. These are synthetic numerical checks.
 No physical measurements or cross-tool speed benchmark are included.
+
+## D33 sparse transient verification
+
+The D07-D08 domain, rational-update, energy-ledger and continuous-mode tests
+run with dense and sparse backends without changing their original tolerances.
+The rational variable-step reference uses exact two-by-two elimination; it
+does not call a production solver. The continuous reference uses a 70-digit
+Decimal exponential. A small energy defect does not remove the measured
+first-order temporal error.
+
+Factor-lifetime tests count decompositions and solve calls while checking
+independent rational updates. Equal steps with changing loads reuse one
+factor; any changed computed step size replaces it. This includes adjacent
+binary64 values that a relative tolerance would merge. New calls rebuild
+after changes to conductance, capacity, topology, ordering or fixed nodes.
+
+The manufactured path has 32, 128 or 1,024 unknowns and the field
+`T_i(t)=300+i/8+t/4 K`. Unit conductances and capacities of 2 J/K give
+0.5 W per node, adjusted by -0.125 and +0.125 W at the two endpoints.
+Each case takes eight steps of 0.5 s with one factor. Fixed absolute budgets
+are 2e-10 K for temperature, 2e-9 J for nodal energy defect and 2e-6 J
+for total energy defect. The latter permits accumulation across 1,024
+nodes; it is a finite regression threshold, not a universal bound.
+
+Tests require `3*n-2` CSC entries and at most `64*n` buffer bytes, allowing
+64-bit indices. They block dense solves, `np.diag`, large square allocation
+and sparse-to-dense conversion. The buffer count excludes Python objects,
+LU workspace and stored output histories. No speed benchmark is implied.
+
+```text
+python -m pytest tests/unit/test_transient_networks.py tests/unit/test_sparse_transient_networks.py tests/verification/test_transient_network_reference.py tests/verification/test_transient_energy_reference.py tests/verification/test_sparse_transient_reference.py
+```
+
+See the [D33 execution record](devlog/day33.md) for measured values and limits.
