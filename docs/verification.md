@@ -475,3 +475,49 @@ python -m pytest tests/unit/test_transient_networks.py tests/unit/test_sparse_tr
 ```
 
 See the [D33 execution record](devlog/day33.md) for measured values and limits.
+
+## D34 transient plate verification
+
+The transient plate references cover one-cell film/source arithmetic,
+uniform insulated heating, and an exact rational unequal-cell 2x2 problem.
+The rational reference independently builds the geometry, heater overlaps,
+half-cell resistances and every boundary term. Exact substitution verifies
+each rational update before it is compared with either production backend.
+Temperature budgets are 2e-10 K, with 5e-9 J cell and 2e-8 J total energy
+budgets. These are finite regression limits, not universal error bounds.
+
+An insulated cosine mode separates spatial and temporal error. With
+`alpha=k/cvol`, its continuous decay rate is
+`alpha*pi**2*(1/Lx**2 + 1/Ly**2)`. On uniform cell-centered grids the discrete
+rate is `4*alpha*(sin(pi/(2*nx))**2/dx**2 + sin(pi/(2*ny))**2/dy**2)`.
+Products of backward-Euler factors independently check every numerical state.
+
+The spatial family is 4x3, 8x6 and 16x12, with eight common time steps. Its
+reference is the continuous-space backward-Euler mode at those same steps.
+RMS cell error must show order between 1.8 and 2.2, and the finest maximum
+cell error must remain below 0.08 K. The RMS is calculated from the actual
+error vector and checked against half the independently derived amplitude
+error. The maximum error is also checked against the amplitude error times
+the sampled peak factor. The original coarse maximum-error order of about
+1.742 is retained and is still below 1.8; it is not relabeled as a pass.
+
+Temporal refinement holds the 8x6 spatial grid fixed and uses 10, 20 and
+40 steps to 0.2 s. The reference uses the discrete spatial decay rate with
+continuous time. Maximum-error order must lie between 0.9 and 1.1, with
+finest error below 0.06 K. The error against the full continuum solution is
+reported separately. Energy conservation does not certify either error.
+
+The 1,024-cell sparse ramp requires one factorization, three solves, exactly
+4,992 CSC entries and at most 200,000 CSC buffer bytes. It blocks dense solves,
+square 1,024-cell allocations and sparse-to-dense conversion. Its temperature
+budget is 5e-10 K and total energy budget is 5e-8 J. Factor storage and full
+output history are outside the CSC buffer count. Invalid material/state/time
+data, capacity overflow/underflow, boundary conflicts, zero-film limits and
+negative-temperature extraction are also checked.
+
+```text
+python -m pytest tests/unit/test_transient_plate.py tests/verification/test_transient_plate_reference.py
+```
+
+The [D34 record](devlog/day34.md) retains the original failed convergence
+results, the corrected error-norm criterion, measured errors and limitations.

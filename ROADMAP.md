@@ -141,3 +141,8 @@ features require appropriate analytical references, tests, and documented limits
   variable-load updates, energy ledgers, continuous-mode refinement and bounded
   sparse assembly without dense conversion. Retain measured error and limits.
   Completion date: 2026-11-07. Evidence: docs/devlog/day33.md.
+- [x] D34 | transient plate | Constant-property depth-averaged integration.
+  Acceptance: preserve steady plate laws and dense behavior; verify rational
+  updates, signed energies, separate time/RMS spatial refinement and bounded
+  sparse reuse. Retain original maximum-error results and the 0.08 K limit.
+  Completion date: 2026-11-09. Evidence: docs/devlog/day34.md.

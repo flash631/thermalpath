@@ -127,6 +127,10 @@ see [backward-Euler networks](docs/transient_networks.md).
 consecutive exactly equal computed time steps within a call. The dense default
 is unchanged. See the [verification record](docs/devlog/day33.md) for reuse,
 independent time-response checks and storage limits.
+`solve_transient_plate` adds constant cell heat storage to the depth-averaged
+plate model, with dense or explicit sparse integration and signed step-energy
+records. See [transient plates](docs/transient_plate.md) for inputs, a runnable
+example and the limits of time stepping and through-thickness averaging.
 For the steady source-free plate, run `python examples/steady_plate.py`.
 Its [independent references](docs/plate.md#independent-references) cover constant
 fields, unequal-cell linear profiles and a rational two-dimensional case.

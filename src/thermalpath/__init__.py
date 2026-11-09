@@ -16,6 +16,7 @@ from thermalpath.transient_energy import (
     transient_energy_balance,
 )
 from thermalpath.transient_networks import TransientResult, solve_transient
+from thermalpath.transient_plate import TransientPlateResult, solve_transient_plate
 
 __all__ = [
     "Convection",
@@ -30,6 +31,7 @@ __all__ = [
     "RectangularHeater",
     "SteadyResult",
     "TransientEnergyBalance",
+    "TransientPlateResult",
     "TransientResult",
     "check_connectivity",
     "conduction_resistance",
@@ -42,5 +44,6 @@ __all__ = [
     "solve_plate",
     "solve_steady",
     "solve_transient",
+    "solve_transient_plate",
     "transient_energy_balance",
 ]

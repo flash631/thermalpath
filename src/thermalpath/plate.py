@@ -113,6 +113,92 @@ def solve_plate(
     Sparse factorization can require additional storage. Finite results do not
     certify accuracy, mesh convergence or physical validity. See docs/plate.md.
     """
+    assembly = _assemble_plate(
+        grid,
+        conductivity_w_m_k,
+        west_k=west_k,
+        east_k=east_k,
+        south_k=south_k,
+        north_k=north_k,
+        edge_flux_w_m2=edge_flux_w_m2,
+        edge_convection=edge_convection,
+        face_convection=face_convection,
+        heaters=heaters,
+    )
+    heater_powers = assembly.heater_powers
+    powers = [list(row) for row in assembly.prescribed_powers]
+    faces = assembly.faces
+    broad_links = assembly.broad_links
+    if not assembly.anchored:
+        try:
+            net_input = math.fsum(
+                [*heater_powers, *(-q for cell_powers in powers for q in cell_powers)]
+            )
+        except OverflowError as exc:
+            raise ValueError(
+                "net prescribed plate power is outside float range"
+            ) from exc
+        if net_input != 0:
+            raise ValueError(
+                f"unanchored plate has incompatible net input {net_input!r} W; "
+                "no steady solution exists without a temperature anchor "
+                "or balanced load"
+            )
+        raise ValueError(
+            "at least one fixed-temperature or positive-convection anchor is required; "
+            "balanced unanchored plate has nonunique absolute temperature"
+        )
+    result = solve_steady(assembly.network, backend=backend)
+    for link_id, cell, side, neighbor in faces:
+        power = result.link_powers_w[link_id]
+        powers[cell][side] = power
+        if neighbor is not None:
+            powers[neighbor][side - 1] = -power
+    broad_powers = [0.0] * grid.cell_count
+    for link_id, cell in broad_links:
+        broad_powers[cell] = result.link_powers_w[link_id]
+    return PlateResult(
+        tuple(result.temperatures_k[str(cell)] for cell in range(grid.cell_count)),
+        tuple(tuple(cell_powers) for cell_powers in powers),
+        tuple(broad_powers),
+        _plate_balance(
+            grid,
+            heater_powers,
+            powers,
+            broad_powers,
+            tuple(
+                result.linear_residual_w[str(cell)] for cell in range(grid.cell_count)
+            ),
+        ),
+    )
+
+
+@dataclass(frozen=True)
+class _PlateAssembly:
+    """Share the same constant plate laws between steady and transient solves."""
+
+    network: Network
+    heater_powers: tuple[float, ...]
+    prescribed_powers: tuple[tuple[float, ...], ...]
+    faces: tuple[tuple[str, int, int, int | None], ...]
+    broad_links: tuple[tuple[str, int], ...]
+    anchored: bool
+
+
+def _assemble_plate(
+    grid: RectangularGrid,
+    conductivity_w_m_k: float | Sequence[float],
+    *,
+    west_k: float | None,
+    east_k: float | None,
+    south_k: float | None,
+    north_k: float | None,
+    edge_flux_w_m2: Mapping[str, float] | None,
+    edge_convection: Mapping[str, Convection] | None,
+    face_convection: Convection | None,
+    heaters: Sequence[RectangularHeater],
+) -> _PlateAssembly:
+    """Assemble constant conductances and loads, allowing unanchored plates."""
     if not isinstance(grid, RectangularGrid):
         raise ValueError("grid must be a RectangularGrid")
     heater_powers = map_heaters(grid, heaters)
@@ -250,47 +336,13 @@ def solve_plate(
             links.append(Link(link_id, str(cell), "broad", conductance))
             broad_links.append((link_id, cell))
 
-    if not anchored:
-        try:
-            net_input = math.fsum(
-                [*heater_powers, *(-q for cell_powers in powers for q in cell_powers)]
-            )
-        except OverflowError as exc:
-            raise ValueError(
-                "net prescribed plate power is outside float range"
-            ) from exc
-        if net_input != 0:
-            raise ValueError(
-                f"unanchored plate has incompatible net input {net_input!r} W; "
-                "no steady solution exists without a temperature anchor "
-                "or balanced load"
-            )
-        raise ValueError(
-            "at least one fixed-temperature or positive-convection anchor is required; "
-            "balanced unanchored plate has nonunique absolute temperature"
-        )
-    result = solve_steady(Network(tuple(nodes), tuple(links)), backend=backend)
-    for link_id, cell, side, neighbor in faces:
-        power = result.link_powers_w[link_id]
-        powers[cell][side] = power
-        if neighbor is not None:
-            powers[neighbor][side - 1] = -power
-    broad_powers = [0.0] * grid.cell_count
-    for link_id, cell in broad_links:
-        broad_powers[cell] = result.link_powers_w[link_id]
-    return PlateResult(
-        tuple(result.temperatures_k[str(cell)] for cell in range(grid.cell_count)),
-        tuple(tuple(cell_powers) for cell_powers in powers),
-        tuple(broad_powers),
-        _plate_balance(
-            grid,
-            heater_powers,
-            powers,
-            broad_powers,
-            tuple(
-                result.linear_residual_w[str(cell)] for cell in range(grid.cell_count)
-            ),
-        ),
+    return _PlateAssembly(
+        Network(tuple(nodes), tuple(links)),
+        heater_powers,
+        tuple(tuple(row) for row in powers),
+        tuple(faces),
+        tuple(broad_links),
+        anchored,
     )
 
 
